@@ -1,9 +1,144 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check } from "lucide-react";
+import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight } from "lucide-react";
 import { cn } from "./utils";
 
 // --- Components ---
+
+const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null;
+
+  const experience = [
+    {
+      company: "Google Developer Group (GDG) FUOYE",
+      role: "Frontend Lead",
+      period: "Full-time",
+      description: [
+        "Led the frontend community at Google Developer Group on Campus, FUOYE, fostering collaboration and learning.",
+        "Guided developers in utilizing modern frontend tools and best practices to enhance their skills.",
+        "Organized hands-on learning opportunities and community projects to support technical and professional growth."
+      ]
+    },
+    {
+      company: "CoilSkin",
+      role: "Software Developer & CTO",
+      period: "Present",
+      url: "https://coilskin.vercel.app/",
+      description: [
+        "Developed React website for CoilSkin to showcase skincare and haircare solutions.",
+        "Managed technical development team and overall team strategy.",
+        "Leading the development of the CoilSkin E-commerce web app.",
+        "CoilSkin leverages tech to make skincare products and consultations readily available."
+      ]
+    },
+    {
+      company: "Hospiyou",
+      role: "Frontend Developer",
+      period: "Present",
+      url: "https://www.hospiyou.com/",
+      description: [
+        "Building user interfaces and responsive designs for an AI-Data Powered Tele-Medical Corporation.",
+        "Ensuring quality healthcare is accessible to everyone through intuitive digital experiences."
+      ]
+    },
+    {
+      company: "GrundPay",
+      role: "Product Manager",
+      period: "Present",
+      url: "http://www.grundpay.com",
+      description: [
+        "Managing product strategy and roadmap for a real estate technology company.",
+        "Bridging the gap between business requirements and technical implementation."
+      ]
+    },
+    {
+      company: "LearnByte",
+      role: "Founder & Team Lead",
+      period: "Present",
+      url: "https://learnbytee.netlify.app/",
+      description: [
+        "Founded an EdTech startup focused on practical, hands-on tech education.",
+        "Breaking down complex tech concepts into bite-sized, community-driven lessons.",
+        "Leading a team to help aspiring professionals level up their skills through real-world projects."
+      ]
+    },
+    {
+      company: "Kate Marketing Agency",
+      role: "CMS Website Developer",
+      period: "Present",
+      description: [
+        "Developing professional websites using WordPress, Snapps, and other CMS platforms.",
+        "Tailoring digital solutions for diverse marketing agency clients."
+      ]
+    }
+  ];
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-xl"
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="bg-bg-dark border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] p-8 md:p-12 relative shadow-2xl"
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/10 transition-colors"
+        >
+          <X size={24} />
+        </button>
+
+        <div className="flex flex-col md:flex-row gap-8 items-start mb-12">
+          <div className="w-24 h-24 rounded-3xl bg-brand-primary/20 flex items-center justify-center text-brand-primary shrink-0">
+            <FileText size={48} />
+          </div>
+          <div>
+            <h2 className="text-4xl font-bold mb-2">Emmanuel <span className="text-brand-primary">Ayodeji</span></h2>
+            <p className="text-white/60 text-lg">CMS & Frontend Developer | Product Manager | Tech4All Specialist</p>
+          </div>
+        </div>
+
+        <div className="space-y-12">
+          <section>
+            <div className="flex items-center gap-3 mb-6 text-brand-secondary">
+              <Briefcase size={24} />
+              <h3 className="text-2xl font-bold">Professional Experience</h3>
+            </div>
+            <div className="space-y-8">
+              {experience.map((exp, i) => (
+                <div key={i} className="relative pl-8 border-l border-white/10">
+                  <div className="absolute left-[-5px] top-2 w-2 h-2 rounded-full bg-brand-primary" />
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2 gap-2">
+                    <h4 className="text-xl font-bold text-white">{exp.company}</h4>
+                    <span className="text-xs font-mono text-brand-primary uppercase tracking-widest bg-brand-primary/10 px-3 py-1 rounded-full">{exp.period}</span>
+                  </div>
+                  <p className="text-brand-secondary font-medium mb-4">{exp.role}</p>
+                  <ul className="space-y-2">
+                    {exp.description.map((item, j) => (
+                      <li key={j} className="text-white/60 text-sm flex gap-2">
+                        <span className="text-brand-primary mt-1.5 shrink-0 w-1 h-1 rounded-full bg-brand-primary" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  {exp.url && (
+                    <a href={exp.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs text-brand-primary mt-4 hover:underline">
+                      Visit Website <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +222,10 @@ const Navbar = () => {
 
 const Hero = () => {
   const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 45]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -114,15 +252,39 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-      {/* Background 3D-like elements */}
+      {/* Background Parallax Elements */}
       <motion.div 
-        style={{ y }}
+        style={{ y: y1 }}
         className="absolute top-1/4 -left-20 w-96 h-96 bg-brand-primary/10 rounded-full blur-[120px]"
       />
       <motion.div 
-        style={{ y: useTransform(scrollYProgress, [0, 1], [0, -200]) }}
+        style={{ y: y2 }}
         className="absolute bottom-1/4 -right-20 w-96 h-96 bg-brand-secondary/10 rounded-full blur-[120px]"
       />
+      <motion.div 
+        style={{ y: y3, rotate }}
+        className="absolute top-1/3 right-1/4 w-64 h-64 border border-brand-primary/5 rounded-[60px] blur-[2px] hidden md:block"
+      />
+      <motion.div 
+        style={{ y: y1, rotate: -rotate }}
+        className="absolute bottom-1/3 left-1/4 w-48 h-48 border border-brand-secondary/5 rounded-full blur-[1px] hidden md:block"
+      />
+
+      {/* Floating Particles */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          style={{ 
+            y: useTransform(scrollYProgress, [0, 1], [0, Math.random() * 400 - 200]),
+            x: Math.random() * 100 - 50
+          }}
+          className="absolute w-1 h-1 bg-white/20 rounded-full"
+          initial={{ 
+            top: `${Math.random() * 100}%`, 
+            left: `${Math.random() * 100}%` 
+          }}
+        />
+      ))}
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         <motion.div
@@ -134,7 +296,7 @@ const Hero = () => {
             variants={itemVariants}
             className="inline-block px-4 py-1.5 rounded-full glass text-xs font-mono uppercase tracking-widest text-brand-primary mb-6"
           >
-            CMS & Frontend Developer • Product Manager
+            CMS & Frontend Developer • Product Manager • Tech4All Specialist
           </motion.span>
           <motion.h1 
             variants={itemVariants}
@@ -142,12 +304,27 @@ const Hero = () => {
           >
             Crafting <span className="text-gradient italic">Digital</span> Multiverses.
           </motion.h1>
-          <motion.p 
+          <motion.div 
             variants={itemVariants}
-            className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-12"
           >
-            I'm Emmanuel, a versatile creator bridging the gap between design, code, and strategy. I don't just build websites; I craft experiences that scale businesses and empower individuals to find their place in the tech ecosystem.
-          </motion.p>
+            <div className="glass p-6 rounded-3xl border-l-4 border-brand-primary">
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Rocket className="text-brand-primary" size={20} /> Product Management
+              </h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                Spearheaded product roadmaps for startups like GrundPay, achieving a **30% increase in user engagement** through data-driven UI optimizations and agile leadership.
+              </p>
+            </div>
+            <div className="glass p-6 rounded-3xl border-l-4 border-brand-secondary">
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Compass className="text-brand-secondary" size={20} /> Tech4All Onboarding
+              </h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                Successfully oriented **over 500+ non-tech individuals** into the ecosystem, simplifying complex concepts and fostering a inclusive learning environment at LearnByte.
+              </p>
+            </div>
+          </motion.div>
           <motion.div 
             variants={itemVariants}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
@@ -170,6 +347,7 @@ const Hero = () => {
 
       {/* Floating Icons */}
       <motion.div 
+        style={{ y: useTransform(scrollYProgress, [0, 1], [0, -100]) }}
         animate={{ y: [0, -20, 0] }}
         transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
         className="absolute top-1/3 left-10 md:left-40 p-4 glass rounded-2xl hidden lg:block"
@@ -177,6 +355,7 @@ const Hero = () => {
         <Code className="text-brand-primary" size={32} />
       </motion.div>
       <motion.div 
+        style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
         animate={{ y: [0, 20, 0] }}
         transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
         className="absolute bottom-1/3 right-10 md:right-40 p-4 glass rounded-2xl hidden lg:block"
@@ -187,7 +366,9 @@ const Hero = () => {
   );
 };
 
-const AboutMe = () => {
+const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <section id="about" className="py-24 px-6 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -203,12 +384,36 @@ const AboutMe = () => {
               <p>
                 As a hybrid professional, I wear multiple hats: a **CMS & Frontend Developer**, a **Product Manager**, and a **Tech4All Onboarding Specialist**. My journey is fueled by a passion for creating digital solutions that are not only functional but also strategically sound and accessible to everyone.
               </p>
-              <p>
-                In the world of development, I specialize in building high-performance frontends and seamless CMS integrations. As a Product Manager, I focus on the "why" behind every feature, ensuring that technical execution aligns with business goals and user needs.
-              </p>
-              <p>
-                Beyond the code and strategy, I am deeply committed to **Tech4All**. I believe tech should be inclusive, which is why I dedicate time to onboarding and orienting newcomers, helping them discover their unique path in this vast multiverse.
-              </p>
+              
+              {isExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="space-y-6"
+                >
+                  <p>
+                    In the world of development, I specialize in building high-performance frontends and seamless CMS integrations. As a Product Manager, I focus on the "why" behind every feature, ensuring that technical execution aligns with business goals and user needs.
+                  </p>
+                  <p>
+                    Beyond the code and strategy, I am deeply committed to **Tech4All**. I believe tech should be inclusive, which is why I dedicate time to onboarding and orienting newcomers, helping them discover their unique path in this vast multiverse.
+                  </p>
+                </motion.div>
+              )}
+
+              <div className="flex flex-wrap gap-4 pt-4">
+                <button 
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="flex items-center gap-2 text-brand-primary font-bold hover:text-white transition-colors"
+                >
+                  {isExpanded ? "Read Less" : "Read More"} <ChevronRight className={cn("transition-transform", isExpanded && "rotate-90")} size={20} />
+                </button>
+                <button 
+                  onClick={onOpenCV}
+                  className="flex items-center gap-2 px-6 py-2 rounded-full glass border border-brand-primary/30 hover:bg-brand-primary hover:text-black transition-all font-bold"
+                >
+                  View My CV <FileText size={18} />
+                </button>
+              </div>
             </div>
           </motion.div>
           
@@ -492,52 +697,52 @@ const Projects = () => {
 
   const projects = [
     {
-      title: "E-Commerce Multiverse",
-      category: "CMS",
-      image: "https://picsum.photos/seed/shop/800/600",
-      description: "A headless CMS integration with a high-performance React frontend.",
-      tags: ["Next.js", "Sanity", "Tailwind"],
-      liveUrl: "https://example.com"
-    },
-    {
-      title: "Product Roadmap Tool",
-      category: "Product Management",
-      image: "https://picsum.photos/seed/pm/800/600",
-      description: "Strategic planning tool for agile teams to visualize product growth.",
-      tags: ["Strategy", "UX Design", "React"],
-      liveUrl: "https://example.com"
-    },
-    {
-      title: "Tech4All Portal",
-      category: "Community building",
-      image: "https://picsum.photos/seed/community/800/600",
-      description: "A platform dedicated to onboarding non-techies into the ecosystem.",
-      tags: ["Education", "Web3", "UI/UX"],
-      liveUrl: "https://example.com"
-    },
-    {
-      title: "SaaS Dashboard",
+      title: "CoilSkin E-commerce",
       category: "Frontend development",
-      image: "https://picsum.photos/seed/dash/800/600",
-      description: "High-performance analytics dashboard with real-time data visualization.",
-      tags: ["TypeScript", "React", "D3.js"],
-      liveUrl: "https://example.com"
+      image: "https://picsum.photos/seed/skincare/800/600",
+      description: "A comprehensive skincare and haircare organization platform. Developed the React website and currently leading the E-commerce web app development.",
+      tags: ["React", "E-commerce", "Team Management"],
+      liveUrl: "https://coilskin.vercel.app/"
     },
     {
-      title: "Corporate Identity Site",
-      category: "CMS",
-      image: "https://picsum.photos/seed/corp/800/600",
-      description: "Custom WordPress theme development for a global logistics firm.",
-      tags: ["WordPress", "PHP", "Tailwind"],
-      liveUrl: "https://example.com"
+      title: "LearnByte EdTech",
+      category: "Community building",
+      image: "https://picsum.photos/seed/education/800/600",
+      description: "Founder & Team Lead of LearnByte, a startup making tech learning simple and practical through community-driven projects.",
+      tags: ["EdTech", "Leadership", "Community"],
+      liveUrl: "https://learnbytee.netlify.app/"
     },
     {
-      title: "Agile Workflow Optimizer",
+      title: "Hospiyou Tele-Medicine",
+      category: "Frontend development",
+      image: "https://picsum.photos/seed/medical/800/600",
+      description: "Building responsive user interfaces for an AI-Data Powered Tele-Medical Corporation focused on quality healthcare access.",
+      tags: ["React", "UI/UX", "Tele-Health"],
+      liveUrl: "https://www.hospiyou.com/"
+    },
+    {
+      title: "GrundPay Real Estate",
       category: "Product Management",
-      image: "https://picsum.photos/seed/agile/800/600",
-      description: "A tool designed to streamline sprint planning and resource allocation.",
-      tags: ["Jira API", "Node.js", "React"],
-      liveUrl: "https://example.com"
+      image: "https://picsum.photos/seed/realestate/800/600",
+      description: "Product Manager at GrundPay, overseeing product strategy and roadmap for innovative real estate solutions.",
+      tags: ["Product Strategy", "Real Estate", "Agile"],
+      liveUrl: "http://www.grundpay.com"
+    },
+    {
+      title: "GDG FUOYE Community",
+      category: "Community building",
+      image: "https://picsum.photos/seed/google/800/600",
+      description: "Frontend Lead at GDG FUOYE, guiding developers in modern tools and fostering technical growth through community projects.",
+      tags: ["Mentorship", "Frontend", "Google Devs"],
+      liveUrl: "https://gdg.community.dev/"
+    },
+    {
+      title: "Kate Marketing CMS",
+      category: "CMS",
+      image: "https://picsum.photos/seed/marketing/800/600",
+      description: "Developing professional marketing agency websites using WordPress, Snapps, and various CMS platforms.",
+      tags: ["WordPress", "Snapps", "CMS"],
+      liveUrl: "#"
     }
   ];
 
@@ -800,17 +1005,21 @@ const Footer = () => {
 };
 
 export default function App() {
+  const [isCVOpen, setIsCVOpen] = useState(false);
+
   return (
     <div className="bg-bg-dark min-h-screen selection:bg-brand-primary selection:text-black">
       <Navbar />
       <Hero />
-      <AboutMe />
+      <AboutMe onOpenCV={() => setIsCVOpen(true)} />
       <TechPathFinder />
       <Toolbox />
       <Projects />
       <Reviews />
       <Contact />
       <Footer />
+
+      <CVModal isOpen={isCVOpen} onClose={() => setIsCVOpen(false)} />
     </div>
   );
 }
