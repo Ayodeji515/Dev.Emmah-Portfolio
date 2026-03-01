@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight } from "lucide-react";
+import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download } from "lucide-react";
 import { cn } from "./utils";
 
 // --- Components ---
 
 const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   if (!isOpen) return null;
+
+  const handleDownload = () => {
+    window.print();
+  };
 
   const experience = [
     {
@@ -78,27 +82,35 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-xl"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-xl print:bg-white print:p-0"
     >
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="bg-bg-dark border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] p-8 md:p-12 relative shadow-2xl"
+        className="bg-surface border border-border-subtle w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] p-8 md:p-12 relative shadow-2xl print:max-h-none print:overflow-visible print:shadow-none print:border-none print:rounded-none print:bg-white print:text-black"
       >
-        <button 
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/10 transition-colors"
-        >
-          <X size={24} />
-        </button>
+        <div className="flex justify-end gap-4 mb-4 print:hidden">
+          <button 
+            onClick={handleDownload}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary text-black font-bold hover:bg-white transition-all"
+          >
+            Download <Download size={18} />
+          </button>
+          <button 
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-white/10 transition-colors"
+          >
+            <X size={24} />
+          </button>
+        </div>
 
         <div className="flex flex-col md:flex-row gap-8 items-start mb-12">
-          <div className="w-24 h-24 rounded-3xl bg-brand-primary/20 flex items-center justify-center text-brand-primary shrink-0">
+          <div className="w-24 h-24 rounded-3xl bg-brand-primary/20 flex items-center justify-center text-brand-primary shrink-0 print:bg-brand-primary/10">
             <FileText size={48} />
           </div>
           <div>
             <h2 className="text-4xl font-bold mb-2">Emmanuel <span className="text-brand-primary">Ayodeji</span></h2>
-            <p className="text-white/60 text-lg">CMS & Frontend Developer | Product Manager | Tech4All Specialist</p>
+            <p className="text-text-muted text-lg print:text-gray-600">CMS & Frontend Developer | Product Manager | Tech4All Specialist</p>
           </div>
         </div>
 
@@ -110,23 +122,23 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             </div>
             <div className="space-y-8">
               {experience.map((exp, i) => (
-                <div key={i} className="relative pl-8 border-l border-white/10">
+                <div key={i} className="relative pl-8 border-l border-border-subtle print:border-gray-200">
                   <div className="absolute left-[-5px] top-2 w-2 h-2 rounded-full bg-brand-primary" />
                   <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2 gap-2">
-                    <h4 className="text-xl font-bold text-white">{exp.company}</h4>
+                    <h4 className="text-xl font-bold text-text-main print:text-black">{exp.company}</h4>
                     <span className="text-xs font-mono text-brand-primary uppercase tracking-widest bg-brand-primary/10 px-3 py-1 rounded-full">{exp.period}</span>
                   </div>
                   <p className="text-brand-secondary font-medium mb-4">{exp.role}</p>
                   <ul className="space-y-2">
                     {exp.description.map((item, j) => (
-                      <li key={j} className="text-white/60 text-sm flex gap-2">
+                      <li key={j} className="text-text-muted text-sm flex gap-2 print:text-gray-700">
                         <span className="text-brand-primary mt-1.5 shrink-0 w-1 h-1 rounded-full bg-brand-primary" />
                         {item}
                       </li>
                     ))}
                   </ul>
                   {exp.url && (
-                    <a href={exp.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs text-brand-primary mt-4 hover:underline">
+                    <a href={exp.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs text-brand-primary mt-4 hover:underline print:hidden">
                       Visit Website <ExternalLink size={12} />
                     </a>
                   )}
@@ -140,7 +152,7 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   );
 };
 
-const Navbar = () => {
+const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -161,58 +173,84 @@ const Navbar = () => {
   return (
     <nav className={cn(
       "fixed top-0 left-0 w-full z-50 transition-all duration-300 px-6 py-4",
-      scrolled ? "bg-bg-dark/80 backdrop-blur-md border-b border-white/10 py-3" : "bg-transparent"
+      scrolled ? "bg-surface/80 backdrop-blur-md border-b border-border-subtle py-3" : "bg-transparent"
     )}>
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <motion.a 
           href="#" 
           className="text-2xl font-display font-bold text-gradient"
           whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           EMMANUEL.
         </motion.a>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a 
+          {navLinks.map((link, i) => (
+            <motion.a 
               key={link.name} 
               href={link.href} 
-              className="text-sm font-medium hover:text-brand-primary transition-colors"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="text-sm font-medium hover:text-brand-primary transition-colors relative group"
             >
               {link.name}
-            </a>
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-primary transition-all group-hover:w-full" />
+            </motion.a>
           ))}
-          <a 
+          
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full glass hover:bg-white/10 transition-colors"
+          >
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+
+          <motion.a 
             href="#contact" 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="px-5 py-2 rounded-full bg-brand-primary text-black font-semibold text-sm hover:bg-white transition-colors"
           >
             Hire Me
-          </a>
+          </motion.a>
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        <div className="flex items-center gap-4 md:hidden">
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full glass"
+          >
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <button className="text-text-main" onClick={() => setIsOpen(!isOpen)}>
+            {isOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full left-0 w-full bg-bg-dark border-b border-white/10 p-6 flex flex-col gap-4 md:hidden"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="absolute top-full left-0 w-full bg-surface border-b border-border-subtle p-6 flex flex-col gap-4 md:hidden overflow-hidden"
         >
-          {navLinks.map((link) => (
-            <a 
+          {navLinks.map((link, i) => (
+            <motion.a 
               key={link.name} 
               href={link.href} 
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: i * 0.1 }}
               onClick={() => setIsOpen(false)}
               className="text-lg font-medium hover:text-brand-primary"
             >
               {link.name}
-            </a>
+            </motion.a>
           ))}
         </motion.div>
       )}
@@ -255,11 +293,11 @@ const Hero = () => {
       {/* Background Parallax Elements */}
       <motion.div 
         style={{ y: y1 }}
-        className="absolute top-1/4 -left-20 w-96 h-96 bg-brand-primary/10 rounded-full blur-[120px]"
+        className="absolute top-1/4 -left-20 w-64 h-64 md:w-96 md:h-96 bg-brand-primary/10 rounded-full blur-[80px] md:blur-[120px]"
       />
       <motion.div 
         style={{ y: y2 }}
-        className="absolute bottom-1/4 -right-20 w-96 h-96 bg-brand-secondary/10 rounded-full blur-[120px]"
+        className="absolute bottom-1/4 -right-20 w-64 h-64 md:w-96 md:h-96 bg-brand-secondary/10 rounded-full blur-[80px] md:blur-[120px]"
       />
       <motion.div 
         style={{ y: y3, rotate }}
@@ -312,7 +350,7 @@ const Hero = () => {
               <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
                 <Rocket className="text-brand-primary" size={20} /> Product Management
               </h3>
-              <p className="text-white/60 text-sm leading-relaxed">
+              <p className="text-text-muted text-sm leading-relaxed">
                 Spearheaded product roadmaps for startups like GrundPay, achieving a **30% increase in user engagement** through data-driven UI optimizations and agile leadership.
               </p>
             </div>
@@ -320,7 +358,7 @@ const Hero = () => {
               <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
                 <Compass className="text-brand-secondary" size={20} /> Tech4All Onboarding
               </h3>
-              <p className="text-white/60 text-sm leading-relaxed">
+              <p className="text-text-muted text-sm leading-relaxed">
                 Successfully oriented **over 500+ non-tech individuals** into the ecosystem, simplifying complex concepts and fostering a inclusive learning environment at LearnByte.
               </p>
             </div>
@@ -380,7 +418,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-8">Who is <span className="text-gradient">Emmanuel?</span></h2>
-            <div className="space-y-6 text-white/70 text-lg leading-relaxed">
+            <div className="space-y-6 text-text-muted text-lg leading-relaxed">
               <p>
                 As a hybrid professional, I wear multiple hats: a **CMS & Frontend Developer**, a **Product Manager**, and a **Tech4All Onboarding Specialist**. My journey is fueled by a passion for creating digital solutions that are not only functional but also strategically sound and accessible to everyone.
               </p>
@@ -409,7 +447,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
                 </button>
                 <button 
                   onClick={onOpenCV}
-                  className="flex items-center gap-2 px-6 py-2 rounded-full glass border border-brand-primary/30 hover:bg-brand-primary hover:text-black transition-all font-bold"
+                  className="flex items-center gap-2 px-6 py-2 rounded-full bg-brand-primary text-black hover:bg-white transition-all font-bold shadow-lg shadow-brand-primary/20"
                 >
                   View My CV <FileText size={18} />
                 </button>
@@ -449,7 +487,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <Code className="text-brand-primary mb-6" size={40} />
             <h3 className="text-2xl font-bold mb-4">CMS & Frontend</h3>
-            <p className="text-white/60">Building performant, scalable, and beautiful web interfaces using modern frameworks and headless CMS solutions.</p>
+            <p className="text-text-muted">Building performant, scalable, and beautiful web interfaces using modern frameworks and headless CMS solutions.</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -460,7 +498,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <Rocket className="text-brand-secondary mb-6" size={40} />
             <h3 className="text-2xl font-bold mb-4">Product Management</h3>
-            <p className="text-white/60">Bridging business goals with technical execution. Strategy, roadmap, and user-centric product development.</p>
+            <p className="text-text-muted">Bridging business goals with technical execution. Strategy, roadmap, and user-centric product development.</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -471,7 +509,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <Compass className="text-brand-primary mb-6" size={40} />
             <h3 className="text-2xl font-bold mb-4">Tech4All Onboarding</h3>
-            <p className="text-white/60">Empowering non-techies to find their path. Orientation, mentorship, and simplified tech education.</p>
+            <p className="text-text-muted">Empowering non-techies to find their path. Orientation, mentorship, and simplified tech education.</p>
           </motion.div>
         </div>
       </div>
@@ -513,7 +551,7 @@ const TechPathFinder = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Tech4All <span className="text-brand-primary">Onboarding</span></h2>
-          <p className="text-white/60 text-lg">Lost in the tech multiverse? Tell me what you enjoy, and I'll help you find your path.</p>
+          <p className="text-text-muted text-lg">Lost in the tech multiverse? Tell me what you enjoy, and I'll help you find your path.</p>
         </motion.div>
 
         <motion.div 
@@ -633,7 +671,7 @@ const Toolbox = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">My <span className="text-gradient">Toolbox</span></h2>
-          <p className="text-white/60 text-lg">The languages and platforms I use to bring multiverses to life.</p>
+          <p className="text-text-muted text-lg">The languages and platforms I use to bring multiverses to life.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -756,7 +794,7 @@ const Projects = () => {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">Recent <span className="text-brand-secondary">Works</span></h2>
-            <p className="text-white/60 text-lg max-w-md">A selection of projects where I've blended code, strategy, and empathy.</p>
+            <p className="text-text-muted text-lg max-w-md">A selection of projects where I've blended code, strategy, and empathy.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {categories.map(cat => (
@@ -855,7 +893,7 @@ const Reviews = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Multiverse <span className="text-brand-primary">Voices</span></h2>
-          <p className="text-white/60 text-lg">What people say about our collaborations.</p>
+          <p className="text-text-muted text-lg">What people say about our collaborations.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -890,6 +928,7 @@ const Contact = () => {
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const email = "emmanuelayodeji515@gmail.com";
 
   const copyToClipboard = () => {
@@ -901,6 +940,7 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     
     const formData = new FormData(e.currentTarget);
     
@@ -912,9 +952,12 @@ const Contact = () => {
       
       if (response.ok) {
         setIsSubmitted(true);
+      } else {
+        throw new Error("Failed to send message. Please try again later.");
       }
     } catch (error) {
       console.error("Form submission error:", error);
+      setError("Something went wrong. Please check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -928,7 +971,7 @@ const Contact = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
           <div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Let's <span className="text-gradient">Connect</span></h2>
-            <p className="text-white/60 text-lg mb-10">Ready to start your next project or need tech orientation? Drop a message in the multiverse.</p>
+            <p className="text-text-muted text-lg mb-10">Ready to start your next project or need tech orientation? Drop a message in the multiverse.</p>
             
             <div className="space-y-6">
               <div className="flex items-center gap-4 group cursor-pointer" onClick={copyToClipboard}>
@@ -937,15 +980,15 @@ const Contact = () => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-base md:text-lg font-medium break-all">{email}</span>
-                  <span className="text-xs text-white/40 flex items-center gap-1">
+                  <span className="text-xs text-text-muted flex items-center gap-1">
                     {copied ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Click to copy</>}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-6 pt-4">
-                <a href="#" className="text-white/40 hover:text-brand-primary transition-colors"><Github size={28} /></a>
-                <a href="#" className="text-white/40 hover:text-brand-primary transition-colors"><Linkedin size={28} /></a>
-                <a href="#" className="text-white/40 hover:text-brand-primary transition-colors"><Twitter size={28} /></a>
+                <a href="#" className="text-text-muted hover:text-brand-primary transition-colors"><Github size={28} /></a>
+                <a href="#" className="text-text-muted hover:text-brand-primary transition-colors"><Linkedin size={28} /></a>
+                <a href="#" className="text-text-muted hover:text-brand-primary transition-colors"><Twitter size={28} /></a>
               </div>
             </div>
           </div>
@@ -955,13 +998,13 @@ const Contact = () => {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white/5 rounded-3xl border border-white/10"
+                className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white/5 rounded-3xl border border-border-subtle"
               >
                 <div className="w-20 h-20 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary mb-6">
                   <Check size={40} />
                 </div>
                 <h3 className="text-2xl font-bold mb-2">Message Received!</h3>
-                <p className="text-white/60 mb-8">Thank you for reaching out. I'll get back to you as soon as possible in the multiverse.</p>
+                <p className="text-text-muted mb-8">Thank you for reaching out. I'll get back to you as soon as possible in the multiverse.</p>
                 <button 
                   onClick={() => setIsSubmitted(false)}
                   className="px-8 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-bold"
@@ -974,12 +1017,22 @@ const Contact = () => {
                 className="space-y-4" 
                 onSubmit={handleSubmit}
               >
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm flex items-center gap-3"
+                  >
+                    <AlertCircle size={18} />
+                    {error}
+                  </motion.div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input type="text" name="name" required placeholder="Name" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-                  <input type="email" name="email" required placeholder="Email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+                  <input type="text" name="name" required placeholder="Name" className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+                  <input type="email" name="email" required placeholder="Email" className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
                 </div>
-                <input type="text" name="subject" placeholder="Subject" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-                <textarea name="message" required placeholder="Message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none"></textarea>
+                <input type="text" name="subject" placeholder="Subject" className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+                <textarea name="message" required placeholder="Message" rows={4} className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none"></textarea>
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
@@ -998,18 +1051,32 @@ const Contact = () => {
 
 const Footer = () => {
   return (
-    <footer className="py-12 px-6 border-t border-white/10 text-center">
-      <p className="text-white/40 text-sm">© {new Date().getFullYear()} Emmanuel. Built with passion in the Digital Multiverse.</p>
+    <footer className="py-12 px-6 border-t border-border-subtle text-center">
+      <p className="text-text-muted text-sm">© {new Date().getFullYear()} Emmanuel. Built with passion in the Digital Multiverse.</p>
     </footer>
   );
 };
 
 export default function App() {
   const [isCVOpen, setIsCVOpen] = useState(false);
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    setTheme(savedTheme);
+    document.documentElement.className = savedTheme;
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.className = newTheme;
+  };
 
   return (
-    <div className="bg-bg-dark min-h-screen selection:bg-brand-primary selection:text-black">
-      <Navbar />
+    <div className="min-h-screen">
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
       <Hero />
       <AboutMe onOpenCV={() => setIsCVOpen(true)} />
       <TechPathFinder />

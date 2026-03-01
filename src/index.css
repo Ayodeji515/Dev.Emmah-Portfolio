@@ -9,11 +9,30 @@
   --color-brand-primary: #00FF94;
   --color-brand-secondary: #7000FF;
   --color-bg-dark: #050505;
+  
+  --color-surface: var(--surface);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+}
+
+:root {
+  --surface: #050505;
+  --text-main: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+}
+
+.light {
+  --surface: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-subtle: rgba(15, 23, 42, 0.1);
 }
 
 @layer base {
   body {
-    @apply bg-bg-dark text-white font-sans selection:bg-brand-primary selection:text-black;
+    @apply bg-surface text-text-main font-sans selection:bg-brand-primary selection:text-black transition-colors duration-300;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -22,7 +41,11 @@
 }
 
 .glass {
-  @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  @apply bg-white/5 backdrop-blur-xl border border-border-subtle;
+}
+
+.light .glass {
+  @apply bg-black/5 backdrop-blur-xl border border-border-subtle;
 }
 
 .text-gradient {
