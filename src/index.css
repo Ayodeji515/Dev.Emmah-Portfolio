@@ -24,10 +24,10 @@
 }
 
 .light {
-  --surface: #f8fafc;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border-subtle: rgba(15, 23, 42, 0.1);
+  --surface: #ffffff;
+  --text-main: #020617;
+  --text-muted: #475569;
+  --border-subtle: rgba(2, 6, 23, 0.08);
 }
 
 @layer base {

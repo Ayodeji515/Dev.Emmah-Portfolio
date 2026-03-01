@@ -1,15 +1,61 @@
-import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
-import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download, Loader2 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { cn } from "./utils";
 
 // --- Components ---
 
 const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const cvRef = useRef<HTMLDivElement>(null);
+
   if (!isOpen) return null;
 
-  const handleDownload = () => {
-    window.print();
+  const handleDownload = async () => {
+    if (!cvRef.current) return;
+    setIsDownloading(true);
+
+    try {
+      const canvas = await html2canvas(cvRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.getElementById('cv-content');
+          if (el) {
+            el.style.backgroundColor = '#ffffff';
+            el.style.color = '#000000';
+            // Force all text to be black for the PDF
+            const allText = el.querySelectorAll('*');
+            allText.forEach((node) => {
+              if (node instanceof HTMLElement) {
+                node.style.color = '#000000';
+                node.style.borderColor = '#eeeeee';
+              }
+            });
+          }
+        }
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width / 2, canvas.height / 2],
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save("Emmanuel_Ayodeji_CV.pdf");
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      // Fallback to print if PDF generation fails
+      window.print();
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const experience = [
@@ -87,18 +133,25 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
+        ref={cvRef}
+        id="cv-content"
         className="bg-surface border border-border-subtle w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] p-8 md:p-12 relative shadow-2xl print:max-h-none print:overflow-visible print:shadow-none print:border-none print:rounded-none print:bg-white print:text-black"
       >
         <div className="flex justify-end gap-4 mb-4 print:hidden">
           <button 
             onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary text-black font-bold hover:bg-white transition-all"
+            disabled={isDownloading}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary text-black font-bold hover:bg-text-main hover:text-surface transition-all disabled:opacity-50"
           >
-            Download <Download size={18} />
+            {isDownloading ? (
+              <>Generating... <Loader2 size={18} className="animate-spin" /></>
+            ) : (
+              <>Download PDF <Download size={18} /></>
+            )}
           </button>
           <button 
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/10 transition-colors"
+            className="p-2 rounded-full hover:bg-text-main/10 transition-colors text-text-main"
           >
             <X size={24} />
           </button>
@@ -203,7 +256,7 @@ const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void
           
           <button 
             onClick={toggleTheme}
-            className="p-2 rounded-full glass hover:bg-white/10 transition-colors"
+            className="p-2 rounded-full glass hover:bg-text-main/10 transition-colors"
           >
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
@@ -212,7 +265,7 @@ const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void
             href="#contact" 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-5 py-2 rounded-full bg-brand-primary text-black font-semibold text-sm hover:bg-white transition-colors"
+            className="px-5 py-2 rounded-full bg-brand-primary text-black font-semibold text-sm hover:bg-text-main hover:text-surface transition-colors"
           >
             Hire Me
           </motion.a>
@@ -222,7 +275,7 @@ const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void
         <div className="flex items-center gap-4 md:hidden">
           <button 
             onClick={toggleTheme}
-            className="p-2 rounded-full glass"
+            className="p-2 rounded-full glass text-text-main"
           >
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
@@ -316,7 +369,7 @@ const Hero = () => {
             y: useTransform(scrollYProgress, [0, 1], [0, Math.random() * 400 - 200]),
             x: Math.random() * 100 - 50
           }}
-          className="absolute w-1 h-1 bg-white/20 rounded-full"
+          className="absolute w-1 h-1 bg-text-main/10 rounded-full"
           initial={{ 
             top: `${Math.random() * 100}%`, 
             left: `${Math.random() * 100}%` 
@@ -369,13 +422,13 @@ const Hero = () => {
           >
             <a 
               href="#projects" 
-              className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-bold hover:bg-brand-primary transition-all transform hover:scale-105"
+              className="w-full sm:w-auto px-8 py-4 rounded-full bg-text-main text-surface font-bold hover:bg-brand-primary hover:text-black transition-all transform hover:scale-105"
             >
               View Projects
             </a>
             <a 
               href="#tech4all" 
-              className="w-full sm:w-auto px-8 py-4 rounded-full glass font-bold hover:bg-white/10 transition-all"
+              className="w-full sm:w-auto px-8 py-4 rounded-full bg-surface border border-border-subtle text-text-main font-bold hover:border-brand-primary transition-all"
             >
               Tech Orientation
             </a>
@@ -441,13 +494,13 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
               <div className="flex flex-wrap gap-4 pt-4">
                 <button 
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="flex items-center gap-2 text-brand-primary font-bold hover:text-white transition-colors"
+                  className="flex items-center gap-2 text-brand-primary font-bold hover:text-text-main transition-colors"
                 >
                   {isExpanded ? "Read Less" : "Read More"} <ChevronRight className={cn("transition-transform", isExpanded && "rotate-90")} size={20} />
                 </button>
                 <button 
                   onClick={onOpenCV}
-                  className="flex items-center gap-2 px-6 py-2 rounded-full bg-brand-primary text-black hover:bg-white transition-all font-bold shadow-lg shadow-brand-primary/20"
+                  className="flex items-center gap-2 px-6 py-2 rounded-full bg-brand-primary text-black hover:bg-text-main hover:text-surface transition-all font-bold shadow-lg shadow-brand-primary/20"
                 >
                   View My CV <FileText size={18} />
                 </button>
@@ -585,7 +638,7 @@ const TechPathFinder = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="I love solving puzzles and making things look beautiful..."
-                className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors"
+                className="flex-1 bg-surface border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors text-text-main"
               />
               <motion.button 
                 initial={{ opacity: 0, y: 20 }}
@@ -593,7 +646,7 @@ const TechPathFinder = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.6 }}
                 onClick={handleFindPath}
-                className="px-8 py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all"
+                className="px-8 py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-text-main hover:text-surface transition-all"
               >
                 Find My Path
               </motion.button>
@@ -603,7 +656,7 @@ const TechPathFinder = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-12 p-6 rounded-2xl bg-white/5 border border-white/10 prose prose-invert max-w-none"
+                className="mt-12 p-6 rounded-2xl bg-surface border border-border-subtle prose prose-invert dark:prose-invert max-w-none text-text-main"
               >
                 <div className="whitespace-pre-wrap">{result}</div>
               </motion.div>
@@ -657,7 +710,7 @@ const Toolbox = () => {
         { name: "Git", slug: "git" },
         { name: "GitHub", slug: "github" }
       ],
-      color: "text-white"
+      color: "text-text-main"
     }
   ];
 
@@ -694,13 +747,13 @@ const Toolbox = () => {
                       backgroundColor: "rgba(255,255,255,0.15)",
                       boxShadow: "0 0 20px rgba(0,255,148,0.2)"
                     }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 transition-all cursor-default group"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface border border-border-subtle transition-all cursor-default group"
                   >
                     <div className="w-4 h-4 flex items-center justify-center group-hover:rotate-12 transition-transform">
                       <img 
-                        src={`https://cdn.simpleicons.org/${tool.slug}/white`} 
+                        src={`https://cdn.simpleicons.org/${tool.slug}`} 
                         alt={tool.name}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain dark:invert"
                         loading="lazy"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
@@ -710,7 +763,7 @@ const Toolbox = () => {
                           if (parent) {
                             const icon = document.createElement('div');
                             icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12h20"/></svg>';
-                            icon.className = "text-white/40";
+                            icon.className = "text-text-muted";
                             parent.appendChild(icon);
                           }
                         }}
@@ -851,10 +904,10 @@ const Projects = () => {
               <div className="p-6 flex-1 flex flex-col">
                 <span className="text-xs font-mono text-brand-primary uppercase tracking-widest mb-2 block">{project.category}</span>
                 <h3 className="text-xl font-bold mb-3">{project.title}</h3>
-                <p className="text-white/60 text-sm mb-6 flex-1">{project.description}</p>
+                <p className="text-text-muted text-sm mb-6 flex-1">{project.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {project.tags.map(tag => (
-                    <span key={tag} className="px-3 py-1 rounded-full bg-white/5 text-[10px] font-bold uppercase tracking-wider">{tag}</span>
+                    <span key={tag} className="px-3 py-1 rounded-full bg-surface border border-border-subtle text-text-muted text-[10px] font-bold uppercase tracking-wider">{tag}</span>
                   ))}
                 </div>
               </div>
@@ -898,11 +951,11 @@ const Reviews = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {reviews.map((review, idx) => (
-            <div key={idx} className="glass p-8 rounded-3xl relative">
+            <div key={idx} className="glass p-8 rounded-3xl relative bg-surface border-border-subtle">
               <div className="absolute -top-4 -left-4 text-brand-primary opacity-20">
                 <Star size={64} fill="currentColor" />
               </div>
-              <p className="text-lg italic mb-8 relative z-10">"{review.text}"</p>
+              <p className="text-lg italic mb-8 relative z-10 text-text-main">"{review.text}"</p>
               <div className="flex items-center gap-4">
                 <img 
                   src={review.avatar} 
@@ -912,8 +965,8 @@ const Reviews = () => {
                   referrerPolicy="no-referrer" 
                 />
                 <div>
-                  <h4 className="font-bold">{review.name}</h4>
-                  <p className="text-xs text-white/40">{review.role}</p>
+                  <h4 className="font-bold text-text-main">{review.name}</h4>
+                  <p className="text-xs text-text-muted">{review.role}</p>
                 </div>
               </div>
             </div>
@@ -975,11 +1028,11 @@ const Contact = () => {
             
             <div className="space-y-6">
               <div className="flex items-center gap-4 group cursor-pointer" onClick={copyToClipboard}>
-                <div className="p-3 rounded-xl bg-white/5 text-brand-primary group-hover:bg-brand-primary group-hover:text-black transition-all">
+                <div className="p-3 rounded-xl bg-surface border border-border-subtle text-brand-primary group-hover:bg-brand-primary group-hover:text-black transition-all">
                   <Mail size={24} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-base md:text-lg font-medium break-all">{email}</span>
+                  <span className="text-base md:text-lg font-medium break-all text-text-main">{email}</span>
                   <span className="text-xs text-text-muted flex items-center gap-1">
                     {copied ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Click to copy</>}
                   </span>
@@ -998,16 +1051,16 @@ const Contact = () => {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white/5 rounded-3xl border border-border-subtle"
+                className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-surface rounded-3xl border border-border-subtle"
               >
                 <div className="w-20 h-20 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary mb-6">
                   <Check size={40} />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Message Received!</h3>
+                <h3 className="text-2xl font-bold mb-2 text-text-main">Message Received!</h3>
                 <p className="text-text-muted mb-8">Thank you for reaching out. I'll get back to you as soon as possible in the multiverse.</p>
                 <button 
                   onClick={() => setIsSubmitted(false)}
-                  className="px-8 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-bold"
+                  className="px-8 py-3 rounded-xl bg-brand-primary/10 hover:bg-brand-primary/20 text-text-main transition-colors font-bold"
                 >
                   Send Another
                 </button>
@@ -1028,15 +1081,15 @@ const Contact = () => {
                   </motion.div>
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input type="text" name="name" required placeholder="Name" className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-                  <input type="email" name="email" required placeholder="Email" className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+                  <input type="text" name="name" required placeholder="Name" className="w-full bg-surface border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors text-text-main" />
+                  <input type="email" name="email" required placeholder="Email" className="w-full bg-surface border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors text-text-main" />
                 </div>
-                <input type="text" name="subject" placeholder="Subject" className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-                <textarea name="message" required placeholder="Message" rows={4} className="w-full bg-white/5 border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none"></textarea>
+                <input type="text" name="subject" placeholder="Subject" className="w-full bg-surface border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors text-text-main" />
+                <textarea name="message" required placeholder="Message" rows={4} className="w-full bg-surface border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none text-text-main"></textarea>
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-text-main hover:text-surface transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Sending..." : "Send Message"} <Send size={20} />
                 </button>
@@ -1051,8 +1104,36 @@ const Contact = () => {
 
 const Footer = () => {
   return (
-    <footer className="py-12 px-6 border-t border-border-subtle text-center">
-      <p className="text-text-muted text-sm">© {new Date().getFullYear()} Emmanuel. Built with passion in the Digital Multiverse.</p>
+    <footer className="py-16 px-6 border-t border-border-subtle">
+      <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
+        <div className="flex items-center gap-6">
+          <a 
+            href="https://github.com/Ayodeji515" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-3 rounded-full bg-surface border border-border-subtle text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all"
+          >
+            <Github size={24} />
+          </a>
+          <a 
+            href="https://www.linkedin.com/in/ayodeji-emmanuel-b39756250/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="p-3 rounded-full bg-surface border border-border-subtle text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all"
+          >
+            <Linkedin size={24} />
+          </a>
+          <a 
+            href="#" 
+            className="p-3 rounded-full bg-surface border border-border-subtle text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all"
+          >
+            <Twitter size={24} />
+          </a>
+        </div>
+        <p className="text-text-muted text-sm text-center">
+          © {new Date().getFullYear()} Emmanuel. Built with passion in the Digital Multiverse.
+        </p>
+      </div>
     </footer>
   );
 };
