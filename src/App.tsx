@@ -89,6 +89,29 @@ const Hero = () => {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { 
+        duration: 0.8, 
+        ease: "easeOut" as const 
+      } 
+    },
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background 3D-like elements */}
@@ -103,20 +126,32 @@ const Hero = () => {
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full glass text-xs font-mono uppercase tracking-widest text-brand-primary mb-6">
+          <motion.span 
+            variants={itemVariants}
+            className="inline-block px-4 py-1.5 rounded-full glass text-xs font-mono uppercase tracking-widest text-brand-primary mb-6"
+          >
             CMS & Frontend Developer • Product Manager
-          </span>
-          <h1 className="text-6xl md:text-8xl font-display font-bold mb-8 leading-[1.1]">
+          </motion.span>
+          <motion.h1 
+            variants={itemVariants}
+            className="text-5xl sm:text-6xl md:text-8xl font-display font-bold mb-8 leading-[1.1]"
+          >
             Crafting <span className="text-gradient italic">Digital</span> Multiverses.
-          </h1>
-          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Bridging the gap between design, code, and strategy. Helping businesses scale and newbies find their path in tech.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          </motion.h1>
+          <motion.p 
+            variants={itemVariants}
+            className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed"
+          >
+            I'm Emmanuel, a versatile creator bridging the gap between design, code, and strategy. I don't just build websites; I craft experiences that scale businesses and empower individuals to find their place in the tech ecosystem.
+          </motion.p>
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
             <a 
               href="#projects" 
               className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-bold hover:bg-brand-primary transition-all transform hover:scale-105"
@@ -129,7 +164,7 @@ const Hero = () => {
             >
               Tech Orientation
             </a>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
 
@@ -148,6 +183,93 @@ const Hero = () => {
       >
         <Rocket className="text-brand-secondary" size={32} />
       </motion.div>
+    </section>
+  );
+};
+
+const AboutMe = () => {
+  return (
+    <section id="about" className="py-24 px-6 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-8">Who is <span className="text-gradient">Emmanuel?</span></h2>
+            <div className="space-y-6 text-white/70 text-lg leading-relaxed">
+              <p>
+                As a hybrid professional, I wear multiple hats: a **CMS & Frontend Developer**, a **Product Manager**, and a **Tech4All Onboarding Specialist**. My journey is fueled by a passion for creating digital solutions that are not only functional but also strategically sound and accessible to everyone.
+              </p>
+              <p>
+                In the world of development, I specialize in building high-performance frontends and seamless CMS integrations. As a Product Manager, I focus on the "why" behind every feature, ensuring that technical execution aligns with business goals and user needs.
+              </p>
+              <p>
+                Beyond the code and strategy, I am deeply committed to **Tech4All**. I believe tech should be inclusive, which is why I dedicate time to onboarding and orienting newcomers, helping them discover their unique path in this vast multiverse.
+              </p>
+            </div>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative"
+          >
+            <div className="aspect-square rounded-[40px] overflow-hidden glass p-2">
+              <img 
+                src="https://picsum.photos/seed/emmanuel/800/800" 
+                alt="Emmanuel" 
+                className="w-full h-full object-cover rounded-[32px]"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            {/* Decorative elements */}
+            <div className="absolute -top-6 -right-6 w-32 h-32 bg-brand-primary/20 rounded-full blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-brand-secondary/20 rounded-full blur-2xl" />
+          </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="glass p-8 rounded-3xl"
+          >
+            <Code className="text-brand-primary mb-6" size={40} />
+            <h3 className="text-2xl font-bold mb-4">CMS & Frontend</h3>
+            <p className="text-white/60">Building performant, scalable, and beautiful web interfaces using modern frameworks and headless CMS solutions.</p>
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="glass p-8 rounded-3xl"
+          >
+            <Rocket className="text-brand-secondary mb-6" size={40} />
+            <h3 className="text-2xl font-bold mb-4">Product Management</h3>
+            <p className="text-white/60">Bridging business goals with technical execution. Strategy, roadmap, and user-centric product development.</p>
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="glass p-8 rounded-3xl"
+          >
+            <Compass className="text-brand-primary mb-6" size={40} />
+            <h3 className="text-2xl font-bold mb-4">Tech4All Onboarding</h3>
+            <p className="text-white/60">Empowering non-techies to find their path. Orientation, mentorship, and simplified tech education.</p>
+          </motion.div>
+        </div>
+      </div>
     </section>
   );
 };
@@ -280,8 +402,9 @@ const Toolbox = () => {
       title: "Frontend Development",
       tools: [
         { name: "HTML", slug: "html5" },
-        { name: "CSS", slug: "css3" },
+        { name: "CSS3", slug: "css3" },
         { name: "JavaScript", slug: "javascript" },
+        { name: "ES6", slug: "javascript" },
         { name: "React", slug: "react" },
         { name: "TypeScript", slug: "typescript" },
         { name: "Next.js", slug: "nextdotjs" },
@@ -323,19 +446,34 @@ const Toolbox = () => {
                 {cat.tools.map((tool, tIdx) => (
                   <motion.div 
                     key={tIdx}
-                    whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 transition-colors cursor-default"
+                    whileHover={{ 
+                      scale: 1.1, 
+                      backgroundColor: "rgba(255,255,255,0.15)",
+                      boxShadow: "0 0 20px rgba(0,255,148,0.2)"
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 transition-all cursor-default group"
                   >
-                    <img 
-                      src={`https://cdn.simpleicons.org/${tool.slug}`} 
-                      alt={tool.name}
-                      className="w-4 h-4 object-contain brightness-0 invert"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://cdn.simpleicons.org/${tool.slug}`;
-                      }}
-                    />
-                    <span className="text-sm font-medium">{tool.name}</span>
+                    <div className="w-4 h-4 flex items-center justify-center group-hover:rotate-12 transition-transform">
+                      <img 
+                        src={`https://cdn.simpleicons.org/${tool.slug}/white`} 
+                        alt={tool.name}
+                        className="w-full h-full object-contain"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const icon = document.createElement('div');
+                            icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20"/><path d="M2 12h20"/></svg>';
+                            icon.className = "text-white/40";
+                            parent.appendChild(icon);
+                          }
+                        }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium group-hover:text-brand-primary transition-colors">{tool.name}</span>
                   </motion.div>
                 ))}
               </div>
@@ -453,6 +591,7 @@ const Projects = () => {
                   src={project.image} 
                   alt={project.title} 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -522,7 +661,13 @@ const Reviews = () => {
               </div>
               <p className="text-lg italic mb-8 relative z-10">"{review.text}"</p>
               <div className="flex items-center gap-4">
-                <img src={review.avatar} alt={review.name} className="w-12 h-12 rounded-full border-2 border-brand-primary" referrerPolicy="no-referrer" />
+                <img 
+                  src={review.avatar} 
+                  alt={review.name} 
+                  className="w-12 h-12 rounded-full border-2 border-brand-primary" 
+                  loading="lazy"
+                  referrerPolicy="no-referrer" 
+                />
                 <div>
                   <h4 className="font-bold">{review.name}</h4>
                   <p className="text-xs text-white/40">{review.role}</p>
@@ -538,6 +683,8 @@ const Reviews = () => {
 
 const Contact = () => {
   const [copied, setCopied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const email = "emmanuelayodeji515@gmail.com";
 
   const copyToClipboard = () => {
@@ -546,14 +693,36 @@ const Contact = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    const formData = new FormData(e.currentTarget);
+    
+    try {
+      const response = await fetch(`https://formsubmit.co/ajax/${email}`, {
+        method: "POST",
+        body: formData,
+      });
+      
+      if (response.ok) {
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contact" className="py-24 px-6 bg-brand-secondary/5">
-      <div className="max-w-5xl mx-auto glass p-12 rounded-[40px] relative overflow-hidden">
+      <div className="max-w-5xl mx-auto glass p-8 md:p-12 rounded-[40px] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary/20 rounded-full blur-[100px] -mr-32 -mt-32" />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
           <div>
-            <h2 className="text-5xl font-bold mb-6">Let's <span className="text-gradient">Connect</span></h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Let's <span className="text-gradient">Connect</span></h2>
             <p className="text-white/60 text-lg mb-10">Ready to start your next project or need tech orientation? Drop a message in the multiverse.</p>
             
             <div className="space-y-6">
@@ -562,7 +731,7 @@ const Contact = () => {
                   <Mail size={24} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-lg font-medium">{email}</span>
+                  <span className="text-base md:text-lg font-medium break-all">{email}</span>
                   <span className="text-xs text-white/40 flex items-center gap-1">
                     {copied ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Click to copy</>}
                   </span>
@@ -576,26 +745,46 @@ const Contact = () => {
             </div>
           </div>
 
-          <form 
-            className="space-y-4" 
-            action={`https://formsubmit.co/${email}`} 
-            method="POST"
-          >
-            {/* FormSubmit Configuration */}
-            <input type="hidden" name="_subject" value="New Portfolio Message!" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input type="text" name="name" required placeholder="Name" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-              <input type="email" name="email" required placeholder="Email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-            </div>
-            <input type="text" name="subject" placeholder="Subject" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-            <textarea name="message" required placeholder="Message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none"></textarea>
-            <button type="submit" className="w-full py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all flex items-center justify-center gap-2">
-              Send Message <Send size={20} />
-            </button>
-          </form>
+          <div className="relative min-h-[400px]">
+            {isSubmitted ? (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white/5 rounded-3xl border border-white/10"
+              >
+                <div className="w-20 h-20 rounded-full bg-brand-primary/20 flex items-center justify-center text-brand-primary mb-6">
+                  <Check size={40} />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">Message Received!</h3>
+                <p className="text-white/60 mb-8">Thank you for reaching out. I'll get back to you as soon as possible in the multiverse.</p>
+                <button 
+                  onClick={() => setIsSubmitted(false)}
+                  className="px-8 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-bold"
+                >
+                  Send Another
+                </button>
+              </motion.div>
+            ) : (
+              <form 
+                className="space-y-4" 
+                onSubmit={handleSubmit}
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input type="text" name="name" required placeholder="Name" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+                  <input type="email" name="email" required placeholder="Email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+                </div>
+                <input type="text" name="subject" placeholder="Subject" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+                <textarea name="message" required placeholder="Message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none"></textarea>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="w-full py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Sending..." : "Send Message"} <Send size={20} />
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -615,25 +804,7 @@ export default function App() {
     <div className="bg-bg-dark min-h-screen selection:bg-brand-primary selection:text-black">
       <Navbar />
       <Hero />
-      <div id="about" className="py-24 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="glass p-8 rounded-3xl">
-            <Code className="text-brand-primary mb-6" size={40} />
-            <h3 className="text-2xl font-bold mb-4">CMS & Frontend</h3>
-            <p className="text-white/60">Building performant, scalable, and beautiful web interfaces using modern frameworks and headless CMS solutions.</p>
-          </div>
-          <div className="glass p-8 rounded-3xl">
-            <Rocket className="text-brand-secondary mb-6" size={40} />
-            <h3 className="text-2xl font-bold mb-4">Product Management</h3>
-            <p className="text-white/60">Bridging business goals with technical execution. Strategy, roadmap, and user-centric product development.</p>
-          </div>
-          <div className="glass p-8 rounded-3xl">
-            <Compass className="text-brand-primary mb-6" size={40} />
-            <h3 className="text-2xl font-bold mb-4">Tech4All Onboarding</h3>
-            <p className="text-white/60">Empowering non-techies to find their path. Orientation, mentorship, and simplified tech education.</p>
-          </div>
-        </div>
-      </div>
+      <AboutMe />
       <TechPathFinder />
       <Toolbox />
       <Projects />
