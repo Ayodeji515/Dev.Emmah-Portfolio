@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
-import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download, Loader2 } from "lucide-react";
+import { Menu, X, Github, Linkedin, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download, Loader2 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { cn } from "./utils";
@@ -14,20 +14,23 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   if (!isOpen) return null;
 
   const handleDownload = async () => {
-    if (!cvRef.current) return;
+    const cvElement = document.getElementById('cv-printable-content');
+    if (!cvElement) return;
     setIsDownloading(true);
 
     try {
-      const canvas = await html2canvas(cvRef.current, {
+      const canvas = await html2canvas(cvElement, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
         onclone: (clonedDoc) => {
-          const el = clonedDoc.getElementById('cv-content');
+          const el = clonedDoc.getElementById('cv-printable-content');
           if (el) {
             el.style.backgroundColor = '#ffffff';
             el.style.color = '#000000';
+            el.style.padding = '40px';
+            el.style.width = '800px';
             // Force all text to be black for the PDF
             const allText = el.querySelectorAll('*');
             allText.forEach((node) => {
@@ -41,17 +44,24 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       });
 
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "px",
-        format: [canvas.width / 2, canvas.height / 2],
-      });
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const scaledHeight = (imgHeight * pdfWidth) / imgWidth;
+      
+      // Page 1: Top half
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, scaledHeight);
+      
+      // Page 2: Bottom half
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, -pdfHeight, pdfWidth, scaledHeight);
 
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
       pdf.save("Emmanuel_Ayodeji_CV.pdf");
     } catch (err) {
       console.error("PDF generation error:", err);
-      // Fallback to print if PDF generation fails
       window.print();
     } finally {
       setIsDownloading(false);
@@ -133,8 +143,6 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       <motion.div 
         initial={{ scale: 0.9, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        ref={cvRef}
-        id="cv-content"
         className="bg-surface border border-border-subtle w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] p-8 md:p-12 relative shadow-2xl print:max-h-none print:overflow-visible print:shadow-none print:border-none print:rounded-none print:bg-white print:text-black"
       >
         <div className="flex justify-end gap-4 mb-4 print:hidden">
@@ -157,48 +165,50 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
           </button>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 items-start mb-12">
-          <div className="w-24 h-24 rounded-3xl bg-brand-primary/20 flex items-center justify-center text-brand-primary shrink-0 print:bg-brand-primary/10">
-            <FileText size={48} />
+        <div id="cv-printable-content" className="bg-surface">
+          <div className="flex flex-col md:flex-row gap-8 items-start mb-12">
+            <div className="w-24 h-24 rounded-3xl bg-brand-primary/20 flex items-center justify-center text-brand-primary shrink-0 print:bg-brand-primary/10">
+              <FileText size={48} />
+            </div>
+            <div>
+              <h2 className="text-4xl font-bold mb-2">Emmanuel <span className="text-brand-primary">Ayodeji</span></h2>
+              <p className="text-text-muted text-lg print:text-gray-600">CMS & Frontend Developer | Product Manager | Tech4All Specialist</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-4xl font-bold mb-2">Emmanuel <span className="text-brand-primary">Ayodeji</span></h2>
-            <p className="text-text-muted text-lg print:text-gray-600">CMS & Frontend Developer | Product Manager | Tech4All Specialist</p>
-          </div>
-        </div>
 
-        <div className="space-y-12">
-          <section>
-            <div className="flex items-center gap-3 mb-6 text-brand-secondary">
-              <Briefcase size={24} />
-              <h3 className="text-2xl font-bold">Professional Experience</h3>
-            </div>
-            <div className="space-y-8">
-              {experience.map((exp, i) => (
-                <div key={i} className="relative pl-8 border-l border-border-subtle print:border-gray-200">
-                  <div className="absolute left-[-5px] top-2 w-2 h-2 rounded-full bg-brand-primary" />
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2 gap-2">
-                    <h4 className="text-xl font-bold text-text-main print:text-black">{exp.company}</h4>
-                    <span className="text-xs font-mono text-brand-primary uppercase tracking-widest bg-brand-primary/10 px-3 py-1 rounded-full">{exp.period}</span>
+          <div className="space-y-12">
+            <section>
+              <div className="flex items-center gap-3 mb-6 text-brand-secondary">
+                <Briefcase size={24} />
+                <h3 className="text-2xl font-bold">Professional Experience</h3>
+              </div>
+              <div className="space-y-8">
+                {experience.map((exp, i) => (
+                  <div key={i} className="relative pl-8 border-l border-border-subtle print:border-gray-200">
+                    <div className="absolute left-[-5px] top-2 w-2 h-2 rounded-full bg-brand-primary" />
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2 gap-2">
+                      <h4 className="text-xl font-bold text-text-main print:text-black">{exp.company}</h4>
+                      <span className="text-xs font-mono text-brand-primary uppercase tracking-widest bg-brand-primary/10 px-3 py-1 rounded-full">{exp.period}</span>
+                    </div>
+                    <p className="text-brand-secondary font-medium mb-4">{exp.role}</p>
+                    <ul className="space-y-2">
+                      {exp.description.map((item, j) => (
+                        <li key={j} className="text-text-muted text-sm flex gap-2 print:text-gray-700">
+                          <span className="text-brand-primary mt-1.5 shrink-0 w-1 h-1 rounded-full bg-brand-primary" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                    {exp.url && (
+                      <a href={exp.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs text-brand-primary mt-4 hover:underline print:hidden">
+                        Visit Website <ExternalLink size={12} />
+                      </a>
+                    )}
                   </div>
-                  <p className="text-brand-secondary font-medium mb-4">{exp.role}</p>
-                  <ul className="space-y-2">
-                    {exp.description.map((item, j) => (
-                      <li key={j} className="text-text-muted text-sm flex gap-2 print:text-gray-700">
-                        <span className="text-brand-primary mt-1.5 shrink-0 w-1 h-1 rounded-full bg-brand-primary" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  {exp.url && (
-                    <a href={exp.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs text-brand-primary mt-4 hover:underline print:hidden">
-                      Visit Website <ExternalLink size={12} />
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          </div>
         </div>
       </motion.div>
     </motion.div>
@@ -262,7 +272,7 @@ const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void
           </button>
 
           <motion.a 
-            href="#contact" 
+            href="mailto:emmanuelayodeji515@gmail.com" 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-5 py-2 rounded-full bg-brand-primary text-black font-semibold text-sm hover:bg-text-main hover:text-surface transition-colors"
@@ -272,7 +282,15 @@ const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void
         </div>
 
         {/* Mobile Toggle */}
-        <div className="flex items-center gap-4 md:hidden">
+        <div className="flex items-center gap-3 md:hidden">
+          <motion.a 
+            href="mailto:emmanuelayodeji515@gmail.com"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-4 py-1.5 rounded-full bg-brand-primary text-black font-bold text-xs"
+          >
+            Hire Me
+          </motion.a>
           <button 
             onClick={toggleTheme}
             className="p-2 rounded-full glass text-text-main"
@@ -305,6 +323,16 @@ const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void
               {link.name}
             </motion.a>
           ))}
+          <motion.a 
+            href="mailto:emmanuelayodeji515@gmail.com"
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: navLinks.length * 0.1 }}
+            onClick={() => setIsOpen(false)}
+            className="w-full py-4 rounded-2xl bg-brand-primary text-black font-bold text-center"
+          >
+            Hire Me
+          </motion.a>
         </motion.div>
       )}
     </nav>
@@ -517,7 +545,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <div className="aspect-square rounded-[40px] overflow-hidden glass p-2">
               <img 
-                src="https://picsum.photos/seed/emmanuel/800/800" 
+                src="https://ais-dev-oxxbkeeyku3z2ca4pu5sbm-466415373403.europe-west2.run.app/api/files/67c3969747970d24172776" 
                 alt="Emmanuel" 
                 className="w-full h-full object-cover rounded-[32px]"
                 loading="lazy"
@@ -1039,9 +1067,13 @@ const Contact = () => {
                 </div>
               </div>
               <div className="flex items-center gap-6 pt-4">
-                <a href="#" className="text-text-muted hover:text-brand-primary transition-colors"><Github size={28} /></a>
-                <a href="#" className="text-text-muted hover:text-brand-primary transition-colors"><Linkedin size={28} /></a>
-                <a href="#" className="text-text-muted hover:text-brand-primary transition-colors"><Twitter size={28} /></a>
+                <a href="https://github.com/Ayodeji515" target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-brand-primary transition-colors"><Github size={28} /></a>
+                <a href="https://www.linkedin.com/in/ayodeji-emmanuel-b39756250/" target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-brand-primary transition-colors"><Linkedin size={28} /></a>
+                <a href="https://x.com/emmahdev?s=21" target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-brand-primary transition-colors">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                  </svg>
+                </a>
               </div>
             </div>
           </div>
@@ -1124,10 +1156,14 @@ const Footer = () => {
             <Linkedin size={24} />
           </a>
           <a 
-            href="#" 
+            href="https://x.com/emmahdev?s=21" 
+            target="_blank" 
+            rel="noopener noreferrer"
             className="p-3 rounded-full bg-surface border border-border-subtle text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all"
           >
-            <Twitter size={24} />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+            </svg>
           </a>
         </div>
         <p className="text-text-muted text-sm text-center">
