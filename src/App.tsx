@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send } from "lucide-react";
+import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check } from "lucide-react";
 import { cn } from "./utils";
 
 // --- Components ---
@@ -176,34 +176,62 @@ const TechPathFinder = () => {
   };
 
   return (
-    <section id="tech4all" className="py-24 px-6 relative">
+    <section id="tech4all" className="py-24 px-6 relative overflow-hidden">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Tech4All <span className="text-brand-primary">Onboarding</span></h2>
           <p className="text-white/60 text-lg">Lost in the tech multiverse? Tell me what you enjoy, and I'll help you find your path.</p>
-        </div>
+        </motion.div>
 
-        <div className="glass p-8 rounded-3xl relative overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="glass p-8 rounded-3xl relative overflow-hidden"
+        >
           <div className="absolute top-0 right-0 p-4 opacity-10">
             <Compass size={120} />
           </div>
           
           <div className="relative z-10">
-            <label className="block text-sm font-mono text-brand-primary uppercase tracking-widest mb-4">What are your interests? (e.g., design, logic, data, managing teams)</label>
+            <motion.label 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="block text-sm font-mono text-brand-primary uppercase tracking-widest mb-4"
+            >
+              What are your interests? (e.g., design, logic, data, managing teams)
+            </motion.label>
             <div className="flex flex-col md:flex-row gap-4">
-              <input 
+              <motion.input 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
                 type="text" 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="I love solving puzzles and making things look beautiful..."
                 className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors"
               />
-              <button 
+              <motion.button 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 }}
                 onClick={handleFindPath}
                 className="px-8 py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all"
               >
                 Find My Path
-              </button>
+              </motion.button>
             </div>
 
             {result && (
@@ -216,6 +244,103 @@ const TechPathFinder = () => {
               </motion.div>
             )}
           </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+const Toolbox = () => {
+  const categories = [
+    {
+      title: "Product Management",
+      tools: [
+        { name: "Trello", slug: "trello" },
+        { name: "Linear", slug: "linear" },
+        { name: "Wrike", slug: "wrike" },
+        { name: "Jira", slug: "jira" },
+        { name: "Slack", slug: "slack" },
+        { name: "Discord", slug: "discord" }
+      ],
+      color: "text-brand-secondary"
+    },
+    {
+      title: "CMS Development",
+      tools: [
+        { name: "WordPress", slug: "wordpress" },
+        { name: "Wix", slug: "wix" },
+        { name: "Snapps", slug: "webflow" }, 
+        { name: "GoDaddy", slug: "godaddy" },
+        { name: "Framer", slug: "framer" },
+        { name: "Figma", slug: "figma" }
+      ],
+      color: "text-brand-primary"
+    },
+    {
+      title: "Frontend Development",
+      tools: [
+        { name: "HTML", slug: "html5" },
+        { name: "CSS", slug: "css3" },
+        { name: "JavaScript", slug: "javascript" },
+        { name: "React", slug: "react" },
+        { name: "TypeScript", slug: "typescript" },
+        { name: "Next.js", slug: "nextdotjs" },
+        { name: "Supabase", slug: "supabase" },
+        { name: "Firebase", slug: "firebase" },
+        { name: "Tailwind", slug: "tailwindcss" },
+        { name: "Git", slug: "git" },
+        { name: "GitHub", slug: "github" }
+      ],
+      color: "text-white"
+    }
+  ];
+
+  return (
+    <section className="py-24 px-6">
+      <div className="max-w-7xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">My <span className="text-gradient">Toolbox</span></h2>
+          <p className="text-white/60 text-lg">The languages and platforms I use to bring multiverses to life.</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {categories.map((cat, idx) => (
+            <motion.div 
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="glass p-8 rounded-3xl"
+            >
+              <h3 className={cn("text-xl font-bold mb-6", cat.color)}>{cat.title}</h3>
+              <div className="flex flex-wrap gap-3">
+                {cat.tools.map((tool, tIdx) => (
+                  <motion.div 
+                    key={tIdx}
+                    whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 transition-colors cursor-default"
+                  >
+                    <img 
+                      src={`https://cdn.simpleicons.org/${tool.slug}`} 
+                      alt={tool.name}
+                      className="w-4 h-4 object-contain brightness-0 invert"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://cdn.simpleicons.org/${tool.slug}`;
+                      }}
+                    />
+                    <span className="text-sm font-medium">{tool.name}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
@@ -223,60 +348,128 @@ const TechPathFinder = () => {
 };
 
 const Projects = () => {
+  const [filter, setFilter] = useState("All");
+
+  const categories = ["All", "Frontend development", "CMS", "Product Management", "Community building"];
+
   const projects = [
     {
       title: "E-Commerce Multiverse",
-      category: "Frontend & CMS",
+      category: "CMS",
       image: "https://picsum.photos/seed/shop/800/600",
       description: "A headless CMS integration with a high-performance React frontend.",
-      tags: ["Next.js", "Sanity", "Tailwind"]
+      tags: ["Next.js", "Sanity", "Tailwind"],
+      liveUrl: "https://example.com"
     },
     {
       title: "Product Roadmap Tool",
       category: "Product Management",
       image: "https://picsum.photos/seed/pm/800/600",
       description: "Strategic planning tool for agile teams to visualize product growth.",
-      tags: ["Strategy", "UX Design", "React"]
+      tags: ["Strategy", "UX Design", "React"],
+      liveUrl: "https://example.com"
     },
     {
       title: "Tech4All Portal",
-      category: "Community",
+      category: "Community building",
       image: "https://picsum.photos/seed/community/800/600",
       description: "A platform dedicated to onboarding non-techies into the ecosystem.",
-      tags: ["Education", "Web3", "UI/UX"]
+      tags: ["Education", "Web3", "UI/UX"],
+      liveUrl: "https://example.com"
+    },
+    {
+      title: "SaaS Dashboard",
+      category: "Frontend development",
+      image: "https://picsum.photos/seed/dash/800/600",
+      description: "High-performance analytics dashboard with real-time data visualization.",
+      tags: ["TypeScript", "React", "D3.js"],
+      liveUrl: "https://example.com"
+    },
+    {
+      title: "Corporate Identity Site",
+      category: "CMS",
+      image: "https://picsum.photos/seed/corp/800/600",
+      description: "Custom WordPress theme development for a global logistics firm.",
+      tags: ["WordPress", "PHP", "Tailwind"],
+      liveUrl: "https://example.com"
+    },
+    {
+      title: "Agile Workflow Optimizer",
+      category: "Product Management",
+      image: "https://picsum.photos/seed/agile/800/600",
+      description: "A tool designed to streamline sprint planning and resource allocation.",
+      tags: ["Jira API", "Node.js", "React"],
+      liveUrl: "https://example.com"
     }
   ];
+
+  const filteredProjects = filter === "All" 
+    ? projects 
+    : projects.filter(p => p.category === filter);
 
   return (
     <section id="projects" className="py-24 px-6 bg-white/5">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">Recent <span className="text-brand-secondary">Works</span></h2>
             <p className="text-white/60 text-lg max-w-md">A selection of projects where I've blended code, strategy, and empathy.</p>
           </div>
-          <a href="#" className="text-brand-primary font-mono text-sm uppercase tracking-widest hover:underline">View All Projects →</a>
+          <div className="flex flex-wrap gap-2">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all border",
+                  filter === cat 
+                    ? "bg-brand-primary text-black border-brand-primary" 
+                    : "bg-transparent text-white/60 border-white/10 hover:border-white/30"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, idx) => (
+        <motion.div 
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {filteredProjects.map((project, idx) => (
             <motion.div 
-              key={idx}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+              key={project.title}
               whileHover={{ y: -10 }}
-              className="group glass rounded-3xl overflow-hidden"
+              className="group glass rounded-3xl overflow-hidden flex flex-col"
             >
-              <div className="aspect-video overflow-hidden">
+              <div className="aspect-video overflow-hidden relative">
                 <img 
                   src={project.image} 
                   alt={project.title} 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   referrerPolicy="no-referrer"
                 />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <a 
+                    href={project.liveUrl || "#"} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-6 py-2 rounded-full bg-brand-primary text-black font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform"
+                  >
+                    Live Demo <ExternalLink size={16} />
+                  </a>
+                </div>
               </div>
-              <div className="p-6">
+              <div className="p-6 flex-1 flex flex-col">
                 <span className="text-xs font-mono text-brand-primary uppercase tracking-widest mb-2 block">{project.category}</span>
                 <h3 className="text-xl font-bold mb-3">{project.title}</h3>
-                <p className="text-white/60 text-sm mb-6">{project.description}</p>
+                <p className="text-white/60 text-sm mb-6 flex-1">{project.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {project.tags.map(tag => (
                     <span key={tag} className="px-3 py-1 rounded-full bg-white/5 text-[10px] font-bold uppercase tracking-wider">{tag}</span>
@@ -285,7 +478,7 @@ const Projects = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -344,6 +537,15 @@ const Reviews = () => {
 };
 
 const Contact = () => {
+  const [copied, setCopied] = useState(false);
+  const email = "emmanuelayodeji515@gmail.com";
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <section id="contact" className="py-24 px-6 bg-brand-secondary/5">
       <div className="max-w-5xl mx-auto glass p-12 rounded-[40px] relative overflow-hidden">
@@ -355,11 +557,16 @@ const Contact = () => {
             <p className="text-white/60 text-lg mb-10">Ready to start your next project or need tech orientation? Drop a message in the multiverse.</p>
             
             <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-white/5 text-brand-primary">
+              <div className="flex items-center gap-4 group cursor-pointer" onClick={copyToClipboard}>
+                <div className="p-3 rounded-xl bg-white/5 text-brand-primary group-hover:bg-brand-primary group-hover:text-black transition-all">
                   <Mail size={24} />
                 </div>
-                <span className="text-lg">hello@emmanuel.dev</span>
+                <div className="flex flex-col">
+                  <span className="text-lg font-medium">{email}</span>
+                  <span className="text-xs text-white/40 flex items-center gap-1">
+                    {copied ? <><Check size={12} /> Copied!</> : <><Copy size={12} /> Click to copy</>}
+                  </span>
+                </div>
               </div>
               <div className="flex items-center gap-6 pt-4">
                 <a href="#" className="text-white/40 hover:text-brand-primary transition-colors"><Github size={28} /></a>
@@ -369,14 +576,23 @@ const Contact = () => {
             </div>
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form 
+            className="space-y-4" 
+            action={`https://formsubmit.co/${email}`} 
+            method="POST"
+          >
+            {/* FormSubmit Configuration */}
+            <input type="hidden" name="_subject" value="New Portfolio Message!" />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input type="text" placeholder="Name" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-              <input type="email" placeholder="Email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+              <input type="text" name="name" required placeholder="Name" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+              <input type="email" name="email" required placeholder="Email" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
             </div>
-            <input type="text" placeholder="Subject" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
-            <textarea placeholder="Message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none"></textarea>
-            <button className="w-full py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all flex items-center justify-center gap-2">
+            <input type="text" name="subject" placeholder="Subject" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors" />
+            <textarea name="message" required placeholder="Message" rows={4} className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors resize-none"></textarea>
+            <button type="submit" className="w-full py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all flex items-center justify-center gap-2">
               Send Message <Send size={20} />
             </button>
           </form>
@@ -419,6 +635,7 @@ export default function App() {
         </div>
       </div>
       <TechPathFinder />
+      <Toolbox />
       <Projects />
       <Reviews />
       <Contact />
