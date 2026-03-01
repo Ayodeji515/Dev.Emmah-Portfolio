@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { Menu, X, Github, Linkedin, Twitter, Mail, Code, Rocket, Compass, Star, Send } from "lucide-react";
 import { cn } from "./utils";
-import { getTechPathAdvice } from "./services/gemini";
-import ReactMarkdown from "react-markdown";
 
 // --- Components ---
 
@@ -157,14 +155,24 @@ const Hero = () => {
 const TechPathFinder = () => {
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleFindPath = async () => {
+  const handleFindPath = () => {
     if (!input.trim()) return;
-    setLoading(true);
-    const advice = await getTechPathAdvice(input);
+    
+    const lowerInput = input.toLowerCase();
+    let advice = "";
+
+    if (lowerInput.includes("design") || lowerInput.includes("beautiful") || lowerInput.includes("art")) {
+      advice = "### Recommended Path: UI/UX Design\n\nYour love for aesthetics and user experience makes you a perfect fit for Design. Start by learning Figma and basic design principles.";
+    } else if (lowerInput.includes("code") || lowerInput.includes("build") || lowerInput.includes("logic")) {
+      advice = "### Recommended Path: Frontend Development\n\nSince you enjoy building things and logic, Frontend Development is a great start. Focus on HTML, CSS, and JavaScript.";
+    } else if (lowerInput.includes("manage") || lowerInput.includes("team") || lowerInput.includes("strategy")) {
+      advice = "### Recommended Path: Product Management\n\nYour interest in leadership and strategy aligns perfectly with Product Management. Start by learning about Agile methodologies and user research.";
+    } else {
+      advice = "### Let's Explore Together!\n\nTech is vast! Whether it's Data, Backend, or Cloud, there's a place for you. Reach out to me for a personalized 1-on-1 orientation.";
+    }
+
     setResult(advice);
-    setLoading(false);
   };
 
   return (
@@ -192,10 +200,9 @@ const TechPathFinder = () => {
               />
               <button 
                 onClick={handleFindPath}
-                disabled={loading}
-                className="px-8 py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all disabled:opacity-50"
+                className="px-8 py-4 rounded-2xl bg-brand-primary text-black font-bold hover:bg-white transition-all"
               >
-                {loading ? "Discovering..." : "Find My Path"}
+                Find My Path
               </button>
             </div>
 
@@ -205,7 +212,7 @@ const TechPathFinder = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-12 p-6 rounded-2xl bg-white/5 border border-white/10 prose prose-invert max-w-none"
               >
-                <ReactMarkdown>{result}</ReactMarkdown>
+                <div className="whitespace-pre-wrap">{result}</div>
               </motion.div>
             )}
           </div>
