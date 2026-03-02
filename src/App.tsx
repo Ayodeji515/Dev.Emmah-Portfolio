@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
-import { Menu, X, Github, Linkedin, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download, Loader2 } from "lucide-react";
+import { Menu, X, Github, Linkedin, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download, Loader2, ChevronUp } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { cn } from "./utils";
@@ -545,7 +545,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <div className="aspect-square rounded-[40px] overflow-hidden glass p-2">
               <img 
-                src="https://ais-dev-oxxbkeeyku3z2ca4pu5sbm-466415373403.europe-west2.run.app/api/files/67c3969747970d24172776" 
+                src="https://i.imgur.com/XrUw2pU.jpeg" 
                 alt="Emmanuel" 
                 className="w-full h-full object-cover rounded-[32px]"
                 loading="lazy"
@@ -726,7 +726,7 @@ const Toolbox = () => {
       title: "Frontend Development",
       tools: [
         { name: "HTML", slug: "html5" },
-        { name: "CSS3", slug: "css3" },
+        { name: "CSS3", slug: "CSS3" },
         { name: "JavaScript", slug: "javascript" },
         { name: "ES6", slug: "javascript" },
         { name: "React", slug: "react" },
@@ -1174,6 +1174,47 @@ const Footer = () => {
   );
 };
 
+const ScrollToTop = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.pageYOffset > 500) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", toggleVisibility);
+    return () => window.removeEventListener("scroll", toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.5, y: 20 }}
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 z-[60] p-4 rounded-full bg-brand-primary text-black shadow-2xl shadow-brand-primary/20 hover:bg-text-main hover:text-surface transition-all group"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="group-hover:-translate-y-1 transition-transform" size={24} />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+};
+
 export default function App() {
   const [isCVOpen, setIsCVOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
@@ -1203,6 +1244,7 @@ export default function App() {
       <Contact />
       <Footer />
 
+      <ScrollToTop />
       <CVModal isOpen={isCVOpen} onClose={() => setIsCVOpen(false)} />
     </div>
   );
