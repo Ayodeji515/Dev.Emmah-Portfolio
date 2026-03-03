@@ -1,76 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
-import { Menu, X, Github, Linkedin, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, Download, Loader2, ChevronUp } from "lucide-react";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
+import { Menu, X, Github, Linkedin, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, ChevronUp } from "lucide-react";
 import { cn } from "./utils";
 
 // --- Components ---
 
 const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
   const cvRef = useRef<HTMLDivElement>(null);
 
   if (!isOpen) return null;
-
-  const handleDownload = async () => {
-    const cvElement = document.getElementById('cv-printable-content');
-    if (!cvElement) return;
-    setIsDownloading(true);
-
-    try {
-      // Create a temporary container for the CV to ensure it's isolated
-      const container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.left = '-9999px';
-      container.style.top = '0';
-      container.style.width = '800px';
-      container.style.backgroundColor = '#ffffff';
-      container.innerHTML = cvElement.innerHTML;
-      document.body.appendChild(container);
-
-      const canvas = await html2canvas(container, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-      });
-
-      document.body.removeChild(container);
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const scaledHeight = (imgHeight * pdfWidth) / imgWidth;
-      
-      // Add content to PDF
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, scaledHeight);
-      
-      // If content is longer than one page, add more pages
-      if (scaledHeight > pdfHeight) {
-        let remainingHeight = scaledHeight - pdfHeight;
-        let currentPosition = -pdfHeight;
-        
-        while (remainingHeight > 0) {
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, currentPosition, pdfWidth, scaledHeight);
-          remainingHeight -= pdfHeight;
-          currentPosition -= pdfHeight;
-        }
-      }
-
-      pdf.save("Emmanuel_Ayodeji_CV.pdf");
-    } catch (err) {
-      console.error("PDF generation error:", err);
-      window.print();
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   const experience = [
     {
@@ -150,17 +88,6 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         className="bg-surface border border-border-subtle w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] p-8 md:p-12 relative shadow-2xl print:max-h-none print:overflow-visible print:shadow-none print:border-none print:rounded-none print:bg-white print:text-black"
       >
         <div className="flex justify-end gap-4 mb-4 print:hidden">
-          <button 
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary text-black font-bold hover:bg-text-main hover:text-surface transition-all disabled:opacity-50"
-          >
-            {isDownloading ? (
-              <>Generating... <Loader2 size={18} className="animate-spin" /></>
-            ) : (
-              <>Download PDF <Download size={18} /></>
-            )}
-          </button>
           <button 
             onClick={onClose}
             className="p-2 rounded-full hover:bg-text-main/10 transition-colors text-text-main"
@@ -1499,6 +1426,45 @@ const ScrollToTop = () => {
   );
 };
 
+const MotionDesign = () => {
+  const { scrollYProgress } = useScroll();
+  
+  // Create multiple transforms for different elements
+  const y1 = useTransform(scrollYProgress, [0, 0.5, 1], [0, 200, 0]);
+  const y2 = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, -150, 150, 0]);
+  const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 360]);
+  const scale1 = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1]);
+  const opacity1 = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.1, 0.3, 0.3, 0.1]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {/* Floating Gradient Orbs that follow scroll and "stagnate" in their movement range */}
+      <motion.div 
+        style={{ y: y1, scale: scale1, opacity: opacity1 }}
+        className="absolute top-[10%] -left-[10%] w-[40vw] h-[40vw] bg-brand-primary/5 rounded-full blur-[120px]"
+      />
+      <motion.div 
+        style={{ y: y2, rotate: rotate1, opacity: opacity1 }}
+        className="absolute top-[40%] -right-[10%] w-[35vw] h-[35vw] bg-brand-secondary/5 rounded-full blur-[100px]"
+      />
+      <motion.div 
+        style={{ y: y1, x: y2, opacity: opacity1 }}
+        className="absolute bottom-[10%] left-[20%] w-[30vw] h-[30vw] bg-brand-primary/5 rounded-full blur-[110px]"
+      />
+      
+      {/* Geometric shapes that follow scroll */}
+      <motion.div 
+        style={{ y: y2, rotate: rotate1 }}
+        className="absolute top-[20%] right-[15%] w-32 h-32 border border-brand-primary/10 rounded-3xl hidden md:block"
+      />
+      <motion.div 
+        style={{ y: y1, rotate: -rotate1 }}
+        className="absolute bottom-[30%] left-[10%] w-24 h-24 border border-brand-secondary/10 rounded-full hidden md:block"
+      />
+    </div>
+  );
+};
+
 export default function App() {
   const [isCVOpen, setIsCVOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
@@ -1517,7 +1483,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
+      <MotionDesign />
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <Hero />
       <AboutMe onOpenCV={() => setIsCVOpen(true)} />
