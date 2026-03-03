@@ -1341,45 +1341,59 @@ const Contact = () => {
 
 const Footer = () => {
   return (
-    <footer className="py-16 px-6 border-t border-border-subtle">
-      <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
-        <div className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-black font-bold text-lg shadow-lg shadow-brand-primary/20">
-            E
+    <footer className="relative py-20 px-6 overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-border-subtle to-transparent" />
+      
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
+        <div className="flex flex-col items-center md:items-start gap-4">
+          <div className="flex items-center gap-2 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-black font-bold text-xl shadow-lg shadow-brand-primary/20 group-hover:rotate-12 transition-transform duration-500">
+              E
+            </div>
+            <span className="text-2xl font-display font-bold tracking-tighter text-gradient">EMMANUEL.</span>
           </div>
-          <span className="text-xl font-display font-bold text-gradient">EMMANUEL.</span>
+          <p className="text-text-muted text-sm max-w-xs text-center md:text-left leading-relaxed">
+            Crafting digital experiences that bridge the gap between complex technology and human intuition.
+          </p>
         </div>
-        <div className="flex items-center gap-6">
-          <a 
-            href="https://github.com/Ayodeji515" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="p-3 rounded-full bg-surface border border-border-subtle text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all"
-          >
-            <Github size={24} />
-          </a>
-          <a 
-            href="https://www.linkedin.com/in/ayodeji-emmanuel-b39756250/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="p-3 rounded-full bg-surface border border-border-subtle text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all"
-          >
-            <Linkedin size={24} />
-          </a>
-          <a 
-            href="https://x.com/emmahdev?s=21" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="p-3 rounded-full bg-surface border border-border-subtle text-text-muted hover:text-brand-primary hover:border-brand-primary transition-all"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
-            </svg>
-          </a>
+
+        <div className="flex flex-col items-center gap-6">
+          <h4 className="text-xs font-mono uppercase tracking-[0.3em] text-brand-primary">Connect</h4>
+          <div className="flex items-center gap-4">
+            {[
+              { icon: <Github size={20} />, href: "https://github.com/Ayodeji515", label: "GitHub" },
+              { icon: <Linkedin size={20} />, href: "https://www.linkedin.com/in/ayodeji-emmanuel-b39756250/", label: "LinkedIn" },
+              { icon: (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+                </svg>
+              ), href: "https://x.com/emmahdev?s=21", label: "X" }
+            ].map((social, i) => (
+              <motion.a
+                key={i}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ y: -4, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-12 h-12 rounded-2xl glass flex items-center justify-center text-text-muted hover:text-brand-primary hover:border-brand-primary/50 transition-colors"
+                aria-label={social.label}
+              >
+                {social.icon}
+              </motion.a>
+            ))}
+          </div>
         </div>
-        <p className="text-text-muted text-sm text-center">
-          © {new Date().getFullYear()} Emmanuel. Built with passion in the Digital Multiverse.
-        </p>
+
+        <div className="flex flex-col items-center md:items-end gap-2">
+          <p className="text-text-muted text-xs font-mono uppercase tracking-widest">
+            © {new Date().getFullYear()} Emmanuel Ayodeji
+          </p>
+          <p className="text-[10px] text-text-muted/50 uppercase tracking-[0.2em]">
+            All Rights Reserved • Digital Multiverse v2.0
+          </p>
+        </div>
       </div>
     </footer>
   );
@@ -1429,37 +1443,111 @@ const ScrollToTop = () => {
 const MotionDesign = () => {
   const { scrollYProgress } = useScroll();
   
-  // Create multiple transforms for different elements
-  const y1 = useTransform(scrollYProgress, [0, 0.5, 1], [0, 200, 0]);
-  const y2 = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, -150, 150, 0]);
+  // Organic transforms
+  const y1 = useTransform(scrollYProgress, [0, 0.5, 1], [0, 400, 0]);
+  const y2 = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, -250, 250, 0]);
   const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 360]);
-  const scale1 = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.2, 1]);
-  const opacity1 = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.1, 0.3, 0.3, 0.1]);
+  const scale1 = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.6, 1]);
+  const blur1 = useTransform(scrollYProgress, [0, 0.5, 1], [120, 160, 120]);
+  
+  // Grid movement with perspective
+  const gridY = useTransform(scrollYProgress, [0, 1], [0, -150]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {/* Floating Gradient Orbs that follow scroll and "stagnate" in their movement range */}
+    <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-surface">
+      {/* Film Grain Overlay for realism */}
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none" style={{ 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+      }} />
+
+      {/* Animated Grid Background with depth */}
       <motion.div 
-        style={{ y: y1, scale: scale1, opacity: opacity1 }}
-        className="absolute top-[10%] -left-[10%] w-[40vw] h-[40vw] bg-brand-primary/5 rounded-full blur-[120px]"
+        style={{ y: gridY }}
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]"
+      >
+        <div className="absolute inset-0" style={{ 
+          backgroundImage: `linear-gradient(to right, var(--color-brand-primary) 1px, transparent 1px), linear-gradient(to bottom, var(--color-brand-primary) 1px, transparent 1px)`,
+          backgroundSize: '100px 100px',
+          maskImage: 'radial-gradient(circle at 50% 50%, black, transparent 80%)'
+        }} />
+      </motion.div>
+
+      {/* Floating Gradient Orbs - Refined with variable blur */}
+      <motion.div 
+        style={{ y: y1, scale: scale1, filter: `blur(${blur1}px)` }}
+        className="absolute top-[0%] -left-[20%] w-[80vw] h-[80vw] bg-brand-primary/20 dark:bg-brand-primary/30 rounded-full"
       />
       <motion.div 
-        style={{ y: y2, rotate: rotate1, opacity: opacity1 }}
-        className="absolute top-[40%] -right-[10%] w-[35vw] h-[35vw] bg-brand-secondary/5 rounded-full blur-[100px]"
+        style={{ y: y2, rotate: rotate1, filter: `blur(${blur1}px)` }}
+        className="absolute top-[30%] -right-[20%] w-[70vw] h-[70vw] bg-brand-secondary/20 dark:bg-brand-secondary/30 rounded-full"
       />
       <motion.div 
-        style={{ y: y1, x: y2, opacity: opacity1 }}
-        className="absolute bottom-[10%] left-[20%] w-[30vw] h-[30vw] bg-brand-primary/5 rounded-full blur-[110px]"
+        style={{ y: y1, x: y2, filter: `blur(${blur1}px)` }}
+        className="absolute bottom-[0%] left-[10%] w-[60vw] h-[60vw] bg-brand-primary/20 dark:bg-brand-primary/30 rounded-full"
       />
       
-      {/* Geometric shapes that follow scroll */}
+      {/* Starfield Particles */}
+      <div className="absolute inset-0">
+        {[...Array(40)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ 
+              opacity: Math.random() * 0.5,
+              scale: Math.random() * 0.5 + 0.5,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`
+            }}
+            animate={{ 
+              opacity: [0.2, 0.5, 0.2],
+            }}
+            transition={{ 
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            style={{ 
+              y: useTransform(scrollYProgress, [0, 1], [0, (Math.random() - 0.5) * 300])
+            }}
+            className="absolute w-1 h-1 bg-white rounded-full blur-[1px]"
+          />
+        ))}
+      </div>
+
+      {/* Geometric accents with glass effect */}
       <motion.div 
         style={{ y: y2, rotate: rotate1 }}
-        className="absolute top-[20%] right-[15%] w-32 h-32 border border-brand-primary/10 rounded-3xl hidden md:block"
+        className="absolute top-[20%] right-[12%] w-72 h-72 border border-brand-primary/15 rounded-[80px] hidden md:block opacity-30 backdrop-blur-[2px]"
       />
       <motion.div 
         style={{ y: y1, rotate: -rotate1 }}
-        className="absolute bottom-[30%] left-[10%] w-24 h-24 border border-brand-secondary/10 rounded-full hidden md:block"
+        className="absolute bottom-[20%] left-[8%] w-56 h-56 border border-brand-secondary/15 rounded-full hidden md:block opacity-30 backdrop-blur-[2px]"
+      />
+
+      {/* Atmospheric light streaks */}
+      <motion.div 
+        animate={{ 
+          x: ['-100%', '200%'],
+          opacity: [0, 0.3, 0]
+        }}
+        transition={{ 
+          duration: 12, 
+          repeat: Infinity, 
+          ease: "linear",
+        }}
+        className="absolute top-1/3 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-primary/30 to-transparent rotate-[-12deg]"
+      />
+      <motion.div 
+        animate={{ 
+          x: ['200%', '-100%'],
+          opacity: [0, 0.3, 0]
+        }}
+        transition={{ 
+          duration: 18, 
+          repeat: Infinity, 
+          ease: "linear",
+          delay: 5
+        }}
+        className="absolute bottom-1/4 right-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-secondary/30 to-transparent rotate-[12deg]"
       />
     </div>
   );
