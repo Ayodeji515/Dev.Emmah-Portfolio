@@ -19,29 +19,24 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     setIsDownloading(true);
 
     try {
-      const canvas = await html2canvas(cvElement, {
+      // Create a temporary container for the CV to ensure it's isolated
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.left = '-9999px';
+      container.style.top = '0';
+      container.style.width = '800px';
+      container.style.backgroundColor = '#ffffff';
+      container.innerHTML = cvElement.innerHTML;
+      document.body.appendChild(container);
+
+      const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
-        onclone: (clonedDoc) => {
-          const el = clonedDoc.getElementById('cv-printable-content');
-          if (el) {
-            el.style.backgroundColor = '#ffffff';
-            el.style.color = '#000000';
-            el.style.padding = '40px';
-            el.style.width = '800px';
-            // Force all text to be black for the PDF
-            const allText = el.querySelectorAll('*');
-            allText.forEach((node) => {
-              if (node instanceof HTMLElement) {
-                node.style.color = '#000000';
-                node.style.borderColor = '#eeeeee';
-              }
-            });
-          }
-        }
       });
+
+      document.body.removeChild(container);
 
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -52,12 +47,21 @@ const CVModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       const imgHeight = canvas.height;
       const scaledHeight = (imgHeight * pdfWidth) / imgWidth;
       
-      // Page 1: Top half
+      // Add content to PDF
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, scaledHeight);
       
-      // Page 2: Bottom half
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, -pdfHeight, pdfWidth, scaledHeight);
+      // If content is longer than one page, add more pages
+      if (scaledHeight > pdfHeight) {
+        let remainingHeight = scaledHeight - pdfHeight;
+        let currentPosition = -pdfHeight;
+        
+        while (remainingHeight > 0) {
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, currentPosition, pdfWidth, scaledHeight);
+          remainingHeight -= pdfHeight;
+          currentPosition -= pdfHeight;
+        }
+      }
 
       pdf.save("Emmanuel_Ayodeji_CV.pdf");
     } catch (err) {
@@ -432,7 +436,7 @@ const Hero = () => {
                 <Rocket className="text-brand-primary" size={20} /> Product Management
               </h3>
               <p className="text-text-muted text-sm leading-relaxed">
-                Spearheaded product roadmaps for startups like GrundPay, achieving a **30% increase in user engagement** through data-driven UI optimizations and agile leadership.
+                Spearheaded product roadmaps for startups like GrundPay, achieving a 30% increase in user engagement through data-driven UI optimizations and agile leadership.
               </p>
             </div>
             <div className="glass p-6 rounded-3xl border-l-4 border-brand-secondary">
@@ -440,7 +444,7 @@ const Hero = () => {
                 <Compass className="text-brand-secondary" size={20} /> Tech4All Onboarding
               </h3>
               <p className="text-text-muted text-sm leading-relaxed">
-                Successfully oriented **over 500+ non-tech individuals** into the ecosystem, simplifying complex concepts and fostering a inclusive learning environment at LearnByte.
+                Successfully oriented over 500+ non-tech individuals into the ecosystem, simplifying complex concepts and fostering a inclusive learning environment at LearnByte.
               </p>
             </div>
           </motion.div>
@@ -501,7 +505,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
             <h2 className="text-4xl md:text-5xl font-bold mb-8">Who is <span className="text-gradient">Emmanuel?</span></h2>
             <div className="space-y-6 text-text-muted text-lg leading-relaxed">
               <p>
-                As a hybrid professional, I wear multiple hats: a **CMS & Frontend Developer**, a **Product Manager**, and a **Tech4All Onboarding Specialist**. My journey is fueled by a passion for creating digital solutions that are not only functional but also strategically sound and accessible to everyone.
+                As a hybrid professional, I operate at the intersection of CMS & Frontend Development, Product Management, and Tech4All Onboarding. My career is driven by a commitment to delivering digital solutions that are technically robust, strategically aligned, and universally accessible.
               </p>
               
               {isExpanded && (
@@ -511,10 +515,10 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
                   className="space-y-6"
                 >
                   <p>
-                    In the world of development, I specialize in building high-performance frontends and seamless CMS integrations. As a Product Manager, I focus on the "why" behind every feature, ensuring that technical execution aligns with business goals and user needs.
+                    In my development practice, I focus on building high-performance frontends and seamless CMS integrations. As a Product Manager, I have successfully increased user engagement by 30% for key projects by bridging the gap between technical execution and user-centric strategy.
                   </p>
                   <p>
-                    Beyond the code and strategy, I am deeply committed to **Tech4All**. I believe tech should be inclusive, which is why I dedicate time to onboarding and orienting newcomers, helping them discover their unique path in this vast multiverse.
+                    Beyond technical delivery, I am deeply committed to the Tech4All initiative. I have personally oriented and mentored over 500 individuals, helping aspiring professionals navigate the digital landscape and identify their unique career paths through simplified education and structured onboarding.
                   </p>
                 </motion.div>
               )}
@@ -545,11 +549,15 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <div className="aspect-square rounded-[40px] overflow-hidden glass p-2">
               <img 
-                src="https://i.imgur.com/XrUw2pU.jpeg" 
+                src="https://i.imgur.com/XrUw2pU.jpg" 
                 alt="Emmanuel" 
                 className="w-full h-full object-cover rounded-[32px]"
                 loading="lazy"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://picsum.photos/seed/emmanuel-professional/800/800";
+                }}
               />
             </div>
             {/* Decorative elements */}
@@ -600,22 +608,129 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
 
 const TechPathFinder = () => {
   const [input, setInput] = useState("");
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState<any>(null);
 
   const handleFindPath = () => {
     if (!input.trim()) return;
     
     const lowerInput = input.toLowerCase();
-    let advice = "";
+    let advice: any = null;
 
     if (lowerInput.includes("design") || lowerInput.includes("beautiful") || lowerInput.includes("art")) {
-      advice = "### Recommended Path: UI/UX Design\n\nYour love for aesthetics and user experience makes you a perfect fit for Design. Start by learning Figma and basic design principles.";
+      advice = {
+        title: "UI/UX Design",
+        description: "Your appreciation for aesthetics and user experience makes you a perfect fit for Design. You have a natural eye for how products should look and feel.",
+        steps: "Start by mastering design tools like Figma and studying fundamental design principles such as typography, color theory, and layout.",
+        learnByte: {
+          course: "Product Design",
+          description: "Join my Product Design class at LearnByte for hands-on mentorship and real-world projects."
+        },
+        resources: [
+          { name: "Google UX Design Professional Certificate", url: "https://www.coursera.org/professional-certificates/google-ux-design" },
+          { name: "Figma for Beginners", url: "https://www.youtube.com/results?search_query=figma+for+beginners" },
+          { name: "Laws of UX", url: "https://lawsofux.com/" }
+        ]
+      };
     } else if (lowerInput.includes("code") || lowerInput.includes("build") || lowerInput.includes("logic")) {
-      advice = "### Recommended Path: Frontend Development\n\nSince you enjoy building things and logic, Frontend Development is a great start. Focus on HTML, CSS, and JavaScript.";
+      advice = {
+        title: "Frontend Development",
+        description: "Your interest in building functional systems and logical problem-solving aligns perfectly with Frontend Development.",
+        steps: "Focus on mastering the core pillars of the web: HTML for structure, CSS for styling, and JavaScript for interactivity.",
+        learnByte: {
+          course: "Frontend Development",
+          description: "Learn Frontend Development with me at LearnByte, where we build practical projects together."
+        },
+        resources: [
+          { name: "FreeCodeCamp Responsive Web Design", url: "https://www.freecodecamp.org/learn/2022/responsive-web-design/" },
+          { name: "MDN Web Docs", url: "https://developer.mozilla.org/" },
+          { name: "JavaScript.info", url: "https://javascript.info/" }
+        ]
+      };
     } else if (lowerInput.includes("manage") || lowerInput.includes("team") || lowerInput.includes("strategy")) {
-      advice = "### Recommended Path: Product Management\n\nYour interest in leadership and strategy aligns perfectly with Product Management. Start by learning about Agile methodologies and user research.";
+      advice = {
+        title: "Product Management",
+        description: "Your natural leadership qualities and strategic thinking are ideal for a career in Product Management.",
+        steps: "Begin by exploring Agile methodologies, user research techniques, and how to define product roadmaps that align with business goals.",
+        learnByte: {
+          course: "Product Management",
+          description: "Master Product Management at LearnByte with a curriculum focused on strategy and leadership."
+        },
+        resources: [
+          { name: "Product School Resources", url: "https://productschool.com/resources" },
+          { name: "Agile Manifesto", url: "https://agilemanifesto.org/" },
+          { name: "Inspired by Marty Cagan", url: "https://www.svpg.com/books/inspired-how-to-create-tech-products-customers-love/" }
+        ]
+      };
+    } else if (lowerInput.includes("wordpress") || lowerInput.includes("cms") || lowerInput.includes("website")) {
+      advice = {
+        title: "CMS & Website Development",
+        description: "If you want to build professional websites quickly and efficiently, CMS development is the way to go.",
+        steps: "Start by learning WordPress fundamentals, theme customization, and how to use modern CMS platforms like Snapps.",
+        learnByte: {
+          course: "Website Development with Wordpress",
+          description: "I offer specialized classes at LearnByte on building professional websites using WordPress and other CMS tools."
+        },
+        resources: [
+          { name: "WordPress.org Documentation", url: "https://wordpress.org/support/" },
+          { name: "WPBeginner", url: "https://www.wpbeginner.com/" }
+        ]
+      };
+    } else if (lowerInput.includes("data") || lowerInput.includes("analysis")) {
+      advice = {
+        title: "Data Analysis",
+        description: "Your interest in data and patterns makes you a great candidate for Data Analysis.",
+        steps: "Focus on learning Excel, SQL, and data visualization tools like Tableau or Power BI.",
+        learnByte: {
+          course: "Data Analysis",
+          description: "Join our Data Analysis track at LearnByte to learn how to turn raw data into actionable insights."
+        },
+        resources: [
+          { name: "Google Data Analytics Certificate", url: "https://www.coursera.org/professional-certificates/google-data-analytics" },
+          { name: "Kaggle Learn", url: "https://www.kaggle.com/learn" }
+        ]
+      };
+    } else if (lowerInput.includes("backend") || lowerInput.includes("server")) {
+      advice = {
+        title: "Backend Development",
+        description: "If you enjoy working behind the scenes and managing data flow, Backend Development is for you.",
+        steps: "Start by learning a server-side language like Node.js, Python, or PHP, and understand how databases work.",
+        learnByte: {
+          course: "Backend Development",
+          description: "Learn the core of web applications in our Backend Development class at LearnByte."
+        },
+        resources: [
+          { name: "Node.js Documentation", url: "https://nodejs.org/en/docs/" },
+          { name: "MDN: Express/Node introduction", url: "https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs" }
+        ]
+      };
+    } else if (lowerInput.includes("marketing") || lowerInput.includes("digital")) {
+      advice = {
+        title: "Digital Marketing",
+        description: "Your interest in growth and online presence aligns with Digital Marketing.",
+        steps: "Focus on SEO, Content Marketing, Social Media Strategy, and Analytics.",
+        learnByte: {
+          course: "Digital Marketing",
+          description: "Master the art of online growth in our Digital Marketing classes at LearnByte."
+        },
+        resources: [
+          { name: "HubSpot Academy", url: "https://academy.hubspot.com/" },
+          { name: "Google Digital Garage", url: "https://learndigital.withgoogle.com/digitalgarage" }
+        ]
+      };
     } else {
-      advice = "### Let's Explore Together!\n\nTech is vast! Whether it's Data, Backend, or Cloud, there's a place for you. Reach out to me for a personalized 1-on-1 orientation.";
+      advice = {
+        title: "Technology Exploration",
+        description: "The technology landscape is vast and full of opportunities. Whether it's Data Science, Backend Engineering, or Cloud Computing, there is a place for your unique skills.",
+        steps: "I recommend a personalized 1-on-1 orientation session to help identify which specific area of tech resonates most with your interests.",
+        learnByte: {
+          course: "General Tech Orientation",
+          description: "At LearnByte, we offer classes in Product Design, Web Development, Data Analysis, and more. Let's find your fit."
+        },
+        resources: [
+          { name: "Roadmap.sh", url: "https://roadmap.sh/" },
+          { name: "CS50: Introduction to Computer Science", url: "https://pll.harvard.edu/course/cs50-introduction-computer-science" }
+        ]
+      };
     }
 
     setResult(advice);
@@ -632,7 +747,7 @@ const TechPathFinder = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Tech4All <span className="text-brand-primary">Onboarding</span></h2>
-          <p className="text-text-muted text-lg">Lost in the tech multiverse? Tell me what you enjoy, and I'll help you find your path.</p>
+          <p className="text-text-muted text-lg">Lost in the tech multiverse? Share your interests, and I will help you navigate your professional journey.</p>
         </motion.div>
 
         <motion.div 
@@ -665,7 +780,7 @@ const TechPathFinder = () => {
                 type="text" 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="I love solving puzzles and making things look beautiful..."
+                placeholder="I enjoy solving complex problems and creating intuitive designs..."
                 className="flex-1 bg-surface border border-border-subtle rounded-2xl px-6 py-4 focus:outline-none focus:border-brand-primary transition-colors text-text-main"
               />
               <motion.button 
@@ -684,9 +799,57 @@ const TechPathFinder = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-12 p-6 rounded-2xl bg-surface border border-border-subtle prose prose-invert dark:prose-invert max-w-none text-text-main"
+                className="mt-12 p-8 rounded-2xl bg-surface border border-border-subtle text-text-main"
               >
-                <div className="whitespace-pre-wrap">{result}</div>
+                <h3 className="text-2xl font-bold mb-4 text-brand-primary">Recommended Path: {result.title}</h3>
+                <p className="text-lg mb-6 leading-relaxed">{result.description}</p>
+                <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <h4 className="font-bold mb-2 flex items-center gap-2">
+                    <Rocket size={18} className="text-brand-secondary" /> Next Steps
+                  </h4>
+                  <p className="text-text-muted text-sm">{result.steps}</p>
+                </div>
+
+                {result.learnByte && (
+                  <div className="mb-8 p-6 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                      <Star size={60} className="text-brand-primary" />
+                    </div>
+                    <h4 className="font-bold mb-2 flex items-center gap-2 text-brand-primary">
+                      <Star size={18} /> Learn with me at LearnByte
+                    </h4>
+                    <p className="text-text-main font-medium mb-2">Course: {result.learnByte.course}</p>
+                    <p className="text-text-muted text-sm mb-4">{result.learnByte.description}</p>
+                    <a 
+                      href="https://learnbytee.netlify.app/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-bold text-brand-primary hover:underline"
+                    >
+                      Enroll at LearnByte <ExternalLink size={14} />
+                    </a>
+                  </div>
+                )}
+                
+                <div>
+                  <h4 className="font-bold mb-4 flex items-center gap-2">
+                    <Star size={18} className="text-brand-primary" /> Other Learning Resources
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {result.resources.map((res: any, i: number) => (
+                      <a 
+                        key={i}
+                        href={res.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 rounded-xl bg-surface border border-border-subtle hover:border-brand-primary transition-all group"
+                      >
+                        <span className="text-sm font-medium">{res.name}</span>
+                        <ExternalLink size={14} className="text-text-muted group-hover:text-brand-primary transition-colors" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             )}
           </div>
@@ -809,8 +972,97 @@ const Toolbox = () => {
   );
 };
 
+const ProjectModal = ({ project, isOpen, onClose }: { project: any; isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen || !project) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-sm"
+        onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          className="glass w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[40px] relative"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={onClose}
+            className="absolute top-6 right-6 p-3 rounded-full bg-surface/50 hover:bg-surface text-text-main transition-colors z-10"
+            aria-label="Close modal"
+          >
+            <X size={24} />
+          </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12">
+            <div className="space-y-6">
+              <div className="aspect-video rounded-3xl overflow-hidden border border-white/10">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {project.tags.map((tag: string) => (
+                  <span key={tag} className="px-3 py-1 rounded-full bg-surface border border-border-subtle text-text-muted text-[10px] font-bold uppercase tracking-wider">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-xs font-mono text-brand-primary uppercase tracking-widest mb-2 block">
+                {project.category}
+              </span>
+              <h3 id="modal-title" className="text-3xl font-bold mb-6">{project.title}</h3>
+              <div className="space-y-4 text-text-muted leading-relaxed mb-8">
+                <p>{project.description}</p>
+                {project.longDescription && <p>{project.longDescription}</p>}
+              </div>
+
+              <div className="mt-auto flex flex-wrap gap-4">
+                {project.liveUrl && project.liveUrl !== "#" && (
+                  <a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-3 rounded-full bg-brand-primary text-black font-bold flex items-center gap-2 hover:bg-text-main hover:text-surface transition-all"
+                  >
+                    Live Preview <ExternalLink size={18} />
+                  </a>
+                )}
+                {project.githubUrl && (
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-3 rounded-full bg-surface border border-border-subtle text-text-main font-bold hover:border-brand-primary transition-all flex items-center gap-2"
+                  >
+                    GitHub Repo <Github size={18} />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 const Projects = () => {
   const [filter, setFilter] = useState("All");
+  const [selectedProject, setSelectedProject] = useState<any>(null);
 
   const categories = ["All", "Frontend development", "CMS", "Product Management", "Community building"];
 
@@ -819,31 +1071,38 @@ const Projects = () => {
       title: "CoilSkin E-commerce",
       category: "Frontend development",
       image: "https://picsum.photos/seed/skincare/800/600",
-      description: "A comprehensive skincare and haircare organization platform. Developed the React website and currently leading the E-commerce web app development.",
+      description: "A comprehensive skincare and haircare organization platform. I developed the React-based web presence and am currently leading the engineering of their full-scale e-commerce solution.",
+      longDescription: "CoilSkin is a dedicated platform designed to simplify skincare and haircare routines. I spearheaded the frontend development using React and am currently overseeing the transition into a full-scale e-commerce solution, focusing on performance, scalability, and an intuitive user experience.",
       tags: ["React", "E-commerce", "Team Management"],
-      liveUrl: "https://coilskin.vercel.app/"
+      liveUrl: "https://coilskin.vercel.app/",
+      githubUrl: "https://github.com/emmahdev"
     },
     {
       title: "LearnByte EdTech",
       category: "Community building",
       image: "https://picsum.photos/seed/education/800/600",
-      description: "Founder & Team Lead of LearnByte, a startup making tech learning simple and practical through community-driven projects.",
+      description: "Founder and Technical Lead of LearnByte, an educational initiative dedicated to simplifying technical concepts through practical, community-driven project work.",
+      longDescription: "LearnByte is a community-first initiative aimed at bridging the gap between theoretical knowledge and practical application. As the founder, I lead a team of passionate developers and designers to create real-world projects that empower students to build professional-grade portfolios.",
       tags: ["EdTech", "Leadership", "Community"],
-      liveUrl: "https://learnbytee.netlify.app/"
+      liveUrl: "https://learnbytee.netlify.app/",
+      githubUrl: "https://github.com/emmahdev"
     },
     {
       title: "Hospiyou Tele-Medicine",
       category: "Frontend development",
       image: "https://picsum.photos/seed/medical/800/600",
-      description: "Building responsive user interfaces for an AI-Data Powered Tele-Medical Corporation focused on quality healthcare access.",
+      description: "Developing responsive user interfaces for an AI-powered tele-medical corporation focused on expanding access to quality healthcare.",
+      longDescription: "Hospiyou is at the forefront of tele-medicine, utilizing data and AI to provide accessible healthcare. My role involves crafting highly responsive and accessible user interfaces that ensure patients can seamlessly navigate medical consultations and health data.",
       tags: ["React", "UI/UX", "Tele-Health"],
-      liveUrl: "https://www.hospiyou.com/"
+      liveUrl: "https://www.hospiyou.com/",
+      githubUrl: "https://github.com/emmahdev"
     },
     {
       title: "GrundPay Real Estate",
       category: "Product Management",
       image: "https://picsum.photos/seed/realestate/800/600",
-      description: "Product Manager at GrundPay, overseeing product strategy and roadmap for innovative real estate solutions.",
+      description: "Product Manager at GrundPay, where I lead product strategy and define the roadmap for innovative real estate technology solutions.",
+      longDescription: "At GrundPay, I manage the end-to-end product lifecycle, from initial ideation to market launch. I collaborate closely with stakeholders to define core requirements, prioritize feature development, and ensure our real estate solutions effectively address market demands.",
       tags: ["Product Strategy", "Real Estate", "Agile"],
       liveUrl: "http://www.grundpay.com"
     },
@@ -851,7 +1110,8 @@ const Projects = () => {
       title: "GDG FUOYE Community",
       category: "Community building",
       image: "https://picsum.photos/seed/google/800/600",
-      description: "Frontend Lead at GDG FUOYE, guiding developers in modern tools and fostering technical growth through community projects.",
+      description: "Frontend Lead for Google Developer Group FUOYE, where I mentor developers and foster technical growth through collaborative projects.",
+      longDescription: "As the Frontend Lead for GDG FUOYE, I provide mentorship to aspiring developers and facilitate workshops on modern web technologies. I am dedicated to building a collaborative environment where community members can enhance their technical expertise through shared learning and development.",
       tags: ["Mentorship", "Frontend", "Google Devs"],
       liveUrl: "https://gdg.community.dev/"
     },
@@ -859,7 +1119,8 @@ const Projects = () => {
       title: "Kate Marketing CMS",
       category: "CMS",
       image: "https://picsum.photos/seed/marketing/800/600",
-      description: "Developing professional marketing agency websites using WordPress, Snapps, and various CMS platforms.",
+      description: "Specializing in the development of high-performance marketing websites using WordPress, Snapps, and other leading CMS platforms.",
+      longDescription: "I focus on engineering high-converting marketing websites tailored for agency needs. By utilizing versatile CMS platforms like WordPress and Snapps, I deliver scalable, manageable solutions that help businesses establish a powerful and professional online presence.",
       tags: ["WordPress", "Snapps", "CMS"],
       liveUrl: "#"
     }
@@ -877,11 +1138,12 @@ const Projects = () => {
             <h2 className="text-4xl md:text-5xl font-bold mb-4">Recent <span className="text-brand-secondary">Works</span></h2>
             <p className="text-text-muted text-lg max-w-md">A selection of projects where I've blended code, strategy, and empathy.</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter projects by category">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setFilter(cat)}
+                aria-pressed={filter === cat}
                 className={cn(
                   "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all border",
                   filter === cat 
@@ -908,7 +1170,8 @@ const Projects = () => {
               transition={{ duration: 0.3 }}
               key={project.title}
               whileHover={{ y: -10 }}
-              className="group glass rounded-3xl overflow-hidden flex flex-col"
+              onClick={() => setSelectedProject(project)}
+              className="group glass rounded-3xl overflow-hidden flex flex-col cursor-pointer"
             >
               <div className="aspect-video overflow-hidden relative">
                 <img 
@@ -919,14 +1182,20 @@ const Projects = () => {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <a 
-                    href={project.liveUrl || "#"} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-6 py-2 rounded-full bg-brand-primary text-black font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform"
-                  >
-                    Live Demo <ExternalLink size={16} />
-                  </a>
+                  <div className="flex flex-col items-center gap-4">
+                    <span className="text-white font-bold text-sm uppercase tracking-widest">View Details</span>
+                    {project.liveUrl && project.liveUrl !== "#" && (
+                      <a 
+                        href={project.liveUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="px-6 py-2 rounded-full bg-brand-primary text-black font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform"
+                      >
+                        Live Demo <ExternalLink size={16} />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="p-6 flex-1 flex flex-col">
@@ -943,6 +1212,12 @@ const Projects = () => {
           ))}
         </motion.div>
       </div>
+
+      <ProjectModal 
+        project={selectedProject} 
+        isOpen={!!selectedProject} 
+        onClose={() => setSelectedProject(null)} 
+      />
     </section>
   );
 };
