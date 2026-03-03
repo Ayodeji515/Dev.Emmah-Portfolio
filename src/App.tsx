@@ -245,11 +245,14 @@ const Navbar = ({ theme, toggleTheme }: { theme: string; toggleTheme: () => void
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <motion.a 
           href="#" 
-          className="text-2xl font-display font-bold text-gradient"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 group"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          EMMANUEL.
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-black font-bold text-xl shadow-lg shadow-brand-primary/20 group-hover:rotate-6 transition-transform">
+            E
+          </div>
+          <span className="text-2xl font-display font-bold text-gradient">EMMANUEL.</span>
         </motion.a>
 
         {/* Desktop Nav */}
@@ -549,8 +552,8 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <div className="aspect-square rounded-[40px] overflow-hidden glass p-2">
               <img 
-                src="https://i.imgur.com/XrUw2pU.jpg" 
-                alt="Emmanuel" 
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop" 
+                alt="Emmanuel Ayodeji" 
                 className="w-full h-full object-cover rounded-[32px]"
                 loading="lazy"
                 referrerPolicy="no-referrer"
@@ -1413,6 +1416,12 @@ const Footer = () => {
   return (
     <footer className="py-16 px-6 border-t border-border-subtle">
       <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-black font-bold text-lg shadow-lg shadow-brand-primary/20">
+            E
+          </div>
+          <span className="text-xl font-display font-bold text-gradient">EMMANUEL.</span>
+        </div>
         <div className="flex items-center gap-6">
           <a 
             href="https://github.com/Ayodeji515" 
