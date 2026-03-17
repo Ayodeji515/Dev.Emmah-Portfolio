@@ -60,3 +60,11 @@
   transform-style: preserve-3d;
 }
 
+.translate-z-10 {
+  transform: translateZ(10px);
+}
+
+.-translate-z-10 {
+  transform: translateZ(-10px);
+}
+

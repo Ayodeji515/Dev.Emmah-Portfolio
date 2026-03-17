@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { motion, useScroll, useTransform, AnimatePresence, useSpring } from "motion/react";
 import { Menu, X, Github, Linkedin, Mail, Code, Rocket, Compass, Star, Send, ExternalLink, Copy, Check, FileText, Briefcase, ChevronRight, Sun, Moon, AlertCircle, ChevronUp } from "lucide-react";
 import { cn } from "./utils";
 
@@ -479,7 +479,7 @@ const AboutMe = ({ onOpenCV }: { onOpenCV: () => void }) => {
           >
             <div className="aspect-square rounded-[40px] overflow-hidden glass p-2">
               <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop" 
+                src="https://media.licdn.com/dms/image/v2/D4D03AQGugP5vuOpWTQ/profile-displayphoto-shrink_200_200/B4DZXSOr8mG4Ag-/0/1742988834524?e=1775088000&v=beta&t=qxLjWiHlseycQyQ9uTPZyQoRfYVIR74F1LlzrevDgnc" 
                 alt="Emmanuel Ayodeji" 
                 className="w-full h-full object-cover rounded-[32px]"
                 loading="lazy"
@@ -1442,112 +1442,114 @@ const ScrollToTop = () => {
 
 const MotionDesign = () => {
   const { scrollYProgress } = useScroll();
-  
-  // Organic transforms
-  const y1 = useTransform(scrollYProgress, [0, 0.5, 1], [0, 400, 0]);
-  const y2 = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, -250, 250, 0]);
-  const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 360]);
-  const scale1 = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.6, 1]);
-  const blur1 = useTransform(scrollYProgress, [0, 0.5, 1], [120, 160, 120]);
-  
-  // Grid movement with perspective
-  const gridY = useTransform(scrollYProgress, [0, 1], [0, -150]);
+  const springConfig = { damping: 30, stiffness: 100 };
+  const mouseX = useSpring(0, springConfig);
+  const mouseY = useSpring(0, springConfig);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set((e.clientX / window.innerWidth - 0.5) * 40);
+      mouseY.set((e.clientY / window.innerHeight - 0.5) * 40);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Scroll-linked transforms
+  const yOffset = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const rotateX = useTransform(scrollYProgress, [0, 1], [15, -15]);
+  const glassOpacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.4, 0.6, 0.6, 0.4]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-surface">
-      {/* Film Grain Overlay for realism */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none" style={{ 
+    <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden bg-surface perspective-[2000px]">
+      {/* Film Grain Overlay */}
+      <div className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none z-50" style={{ 
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
       }} />
 
-      {/* Animated Grid Background with depth */}
+      {/* Dotted Blueprint Grid */}
       <motion.div 
-        style={{ y: gridY }}
-        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06]"
+        style={{ y: yOffset, rotateX: mouseY, rotateY: mouseX }}
+        className="absolute inset-0 opacity-[0.1] dark:opacity-[0.15] preserve-3d"
       >
         <div className="absolute inset-0" style={{ 
-          backgroundImage: `linear-gradient(to right, var(--color-brand-primary) 1px, transparent 1px), linear-gradient(to bottom, var(--color-brand-primary) 1px, transparent 1px)`,
-          backgroundSize: '100px 100px',
-          maskImage: 'radial-gradient(circle at 50% 50%, black, transparent 80%)'
+          backgroundImage: `radial-gradient(circle, var(--color-brand-primary) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px',
+          maskImage: 'linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)'
         }} />
       </motion.div>
 
-      {/* Floating Gradient Orbs - Refined with variable blur */}
-      <motion.div 
-        style={{ y: y1, scale: scale1, filter: `blur(${blur1}px)` }}
-        className="absolute top-[0%] -left-[20%] w-[80vw] h-[80vw] bg-brand-primary/20 dark:bg-brand-primary/30 rounded-full"
-      />
-      <motion.div 
-        style={{ y: y2, rotate: rotate1, filter: `blur(${blur1}px)` }}
-        className="absolute top-[30%] -right-[20%] w-[70vw] h-[70vw] bg-brand-secondary/20 dark:bg-brand-secondary/30 rounded-full"
-      />
-      <motion.div 
-        style={{ y: y1, x: y2, filter: `blur(${blur1}px)` }}
-        className="absolute bottom-[0%] left-[10%] w-[60vw] h-[60vw] bg-brand-primary/20 dark:bg-brand-primary/30 rounded-full"
-      />
-      
-      {/* Starfield Particles */}
-      <div className="absolute inset-0">
-        {[...Array(40)].map((_, i) => (
+      {/* Floating Glass Panels */}
+      <div className="absolute inset-0 flex items-center justify-center preserve-3d">
+        {[...Array(5)].map((_, i) => {
+          const depth = (i - 2) * 200;
+          const initialRotate = i * 45;
+          
+          return (
+            <motion.div
+              key={i}
+              style={{
+                z: depth,
+                rotateX: useTransform([mouseY, rotateX], ([m, r]) => (m as number) + (r as number)),
+                rotateY: useTransform(mouseX, (v) => v + initialRotate),
+                y: useTransform(scrollYProgress, [0, 1], [i * 100, i * -100]),
+                opacity: glassOpacity
+              }}
+              className="absolute w-[40vw] h-[25vw] border border-white/10 dark:border-white/5 rounded-[40px] backdrop-blur-[8px] bg-white/2 dark:bg-white/[0.01] shadow-2xl"
+            >
+              {/* Inner glow accent */}
+              <div className="absolute inset-0 rounded-[40px] bg-gradient-to-br from-brand-primary/5 to-brand-secondary/5" />
+              {/* Corner accent */}
+              <div className="absolute top-6 left-6 w-2 h-2 rounded-full bg-brand-primary/40" />
+              <div className="absolute bottom-6 right-6 w-12 h-[1px] bg-brand-secondary/40" />
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Generative Flow Lines */}
+      <div className="absolute inset-0 z-0">
+        {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
-            initial={{ 
-              opacity: Math.random() * 0.5,
-              scale: Math.random() * 0.5 + 0.5,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`
-            }}
+            initial={{ x: '-100%', opacity: 0 }}
             animate={{ 
-              opacity: [0.2, 0.5, 0.2],
+              x: '200%', 
+              opacity: [0, 0.2, 0],
             }}
             transition={{ 
-              duration: Math.random() * 3 + 2,
+              duration: Math.random() * 10 + 10,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "linear",
+              delay: i * 2
             }}
             style={{ 
-              y: useTransform(scrollYProgress, [0, 1], [0, (Math.random() - 0.5) * 300])
+              top: `${(i / 12) * 100}%`,
+              height: '1px',
+              width: '40vw',
+              background: `linear-gradient(to right, transparent, ${i % 2 === 0 ? 'var(--color-brand-primary)' : 'var(--color-brand-secondary)'}, transparent)`
             }}
-            className="absolute w-1 h-1 bg-white rounded-full blur-[1px]"
+            className="absolute blur-[1px]"
           />
         ))}
       </div>
 
-      {/* Geometric accents with glass effect */}
-      <motion.div 
-        style={{ y: y2, rotate: rotate1 }}
-        className="absolute top-[20%] right-[12%] w-72 h-72 border border-brand-primary/15 rounded-[80px] hidden md:block opacity-30 backdrop-blur-[2px]"
-      />
-      <motion.div 
-        style={{ y: y1, rotate: -rotate1 }}
-        className="absolute bottom-[20%] left-[8%] w-56 h-56 border border-brand-secondary/15 rounded-full hidden md:block opacity-30 backdrop-blur-[2px]"
-      />
-
-      {/* Atmospheric light streaks */}
+      {/* Ambient Depth Glows */}
       <motion.div 
         animate={{ 
-          x: ['-100%', '200%'],
-          opacity: [0, 0.3, 0]
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.2, 0.1]
         }}
-        transition={{ 
-          duration: 12, 
-          repeat: Infinity, 
-          ease: "linear",
-        }}
-        className="absolute top-1/3 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-primary/30 to-transparent rotate-[-12deg]"
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/4 -left-1/4 w-[60vw] h-[60vw] bg-brand-primary/20 rounded-full blur-[160px]"
       />
       <motion.div 
         animate={{ 
-          x: ['200%', '-100%'],
-          opacity: [0, 0.3, 0]
+          scale: [1.2, 1, 1.2],
+          opacity: [0.1, 0.2, 0.1]
         }}
-        transition={{ 
-          duration: 18, 
-          repeat: Infinity, 
-          ease: "linear",
-          delay: 5
-        }}
-        className="absolute bottom-1/4 right-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-secondary/30 to-transparent rotate-[12deg]"
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-1/4 -right-1/4 w-[50vw] h-[50vw] bg-brand-secondary/20 rounded-full blur-[140px]"
       />
     </div>
   );
