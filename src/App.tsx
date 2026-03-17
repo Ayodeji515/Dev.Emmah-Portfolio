@@ -1000,7 +1000,7 @@ const Projects = () => {
     {
       title: "CoilSkin E-commerce",
       category: "Frontend development",
-      image: "https://picsum.photos/seed/skincare/800/600",
+      image: "/api/attachments/coilskin.png",
       description: "A comprehensive skincare and haircare organization platform. I developed the React-based web presence and am currently leading the engineering of their full-scale e-commerce solution.",
       longDescription: "CoilSkin is a dedicated platform designed to simplify skincare and haircare routines. I spearheaded the frontend development using React and am currently overseeing the transition into a full-scale e-commerce solution, focusing on performance, scalability, and an intuitive user experience.",
       tags: ["React", "E-commerce", "Team Management"],
@@ -1010,7 +1010,7 @@ const Projects = () => {
     {
       title: "LearnByte EdTech",
       category: "Community building",
-      image: "https://picsum.photos/seed/education/800/600",
+      image: "/api/attachments/learnbyte.png",
       description: "Founder and Technical Lead of LearnByte, an educational initiative dedicated to simplifying technical concepts through practical, community-driven project work.",
       longDescription: "LearnByte is a community-first initiative aimed at bridging the gap between theoretical knowledge and practical application. As the founder, I lead a team of passionate developers and designers to create real-world projects that empower students to build professional-grade portfolios.",
       tags: ["EdTech", "Leadership", "Community"],
@@ -1020,7 +1020,7 @@ const Projects = () => {
     {
       title: "Hospiyou Tele-Medicine",
       category: "Frontend development",
-      image: "https://picsum.photos/seed/medical/800/600",
+      image: "/api/attachments/hospiyou.png",
       description: "Developing responsive user interfaces for an AI-powered tele-medical corporation focused on expanding access to quality healthcare.",
       longDescription: "Hospiyou is at the forefront of tele-medicine, utilizing data and AI to provide accessible healthcare. My role involves crafting highly responsive and accessible user interfaces that ensure patients can seamlessly navigate medical consultations and health data.",
       tags: ["React", "UI/UX", "Tele-Health"],
@@ -1030,7 +1030,7 @@ const Projects = () => {
     {
       title: "GrundPay Real Estate",
       category: "Product Management",
-      image: "https://picsum.photos/seed/realestate/800/600",
+      image: "/api/attachments/grundpay.png",
       description: "Product Manager at GrundPay, where I lead product strategy and define the roadmap for innovative real estate technology solutions.",
       longDescription: "At GrundPay, I manage the end-to-end product lifecycle, from initial ideation to market launch. I collaborate closely with stakeholders to define core requirements, prioritize feature development, and ensure our real estate solutions effectively address market demands.",
       tags: ["Product Strategy", "Real Estate", "Agile"],
@@ -1039,7 +1039,7 @@ const Projects = () => {
     {
       title: "GDG FUOYE Community",
       category: "Community building",
-      image: "https://picsum.photos/seed/google/800/600",
+      image: "https://picsum.photos/seed/gdg-community/800/600",
       description: "Frontend Lead for Google Developer Group FUOYE, where I mentor developers and foster technical growth through collaborative projects.",
       longDescription: "As the Frontend Lead for GDG FUOYE, I provide mentorship to aspiring developers and facilitate workshops on modern web technologies. I am dedicated to building a collaborative environment where community members can enhance their technical expertise through shared learning and development.",
       tags: ["Mentorship", "Frontend", "Google Devs"],
@@ -1048,7 +1048,7 @@ const Projects = () => {
     {
       title: "Kate Marketing CMS",
       category: "CMS",
-      image: "https://picsum.photos/seed/marketing/800/600",
+      image: "https://picsum.photos/seed/kate-marketing/800/600",
       description: "Specializing in the development of high-performance marketing websites using WordPress, Snapps, and other leading CMS platforms.",
       longDescription: "I focus on engineering high-converting marketing websites tailored for agency needs. By utilizing versatile CMS platforms like WordPress and Snapps, I deliver scalable, manageable solutions that help businesses establish a powerful and professional online presence.",
       tags: ["WordPress", "Snapps", "CMS"],
@@ -1061,12 +1061,38 @@ const Projects = () => {
     : projects.filter(p => p.category === filter);
 
   return (
-    <section id="projects" className="py-24 px-6 bg-white/5">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+    <section id="projects" className="py-32 px-6 bg-white/5 relative overflow-hidden">
+      {/* Decorative background element */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-brand-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
           <div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Recent <span className="text-brand-secondary">Works</span></h2>
-            <p className="text-text-muted text-lg max-w-md">A selection of projects where I've blended code, strategy, and empathy.</p>
+            <motion.span 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-brand-primary font-mono text-sm uppercase tracking-[0.3em] mb-4 block"
+            >
+              Portfolio
+            </motion.span>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-5xl md:text-7xl font-bold tracking-tighter mb-6"
+            >
+              Recent <span className="text-brand-primary italic serif font-light">Works</span>
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-text-muted text-xl max-w-xl leading-relaxed"
+            >
+              A curated selection of projects where I've blended technical engineering with strategic product thinking.
+            </motion.p>
           </div>
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter projects by category">
             {categories.map(cat => (
@@ -1110,6 +1136,11 @@ const Projects = () => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
                   referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    const seed = project.title.toLowerCase().replace(/\s+/g, '-');
+                    target.src = `https://picsum.photos/seed/${seed}/800/600`;
+                  }}
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <div className="flex flex-col items-center gap-4">
